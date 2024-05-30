@@ -1,0 +1,80 @@
+body {
+    /*typo*/
+    margin: 0;
+    padding: 0;
+    background-color: #D9D9D9;
+    background-image: url("img/backhome.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+header{
+    background-color: #282828;
+    color : #fff;
+    display: flex;
+}
+
+/* ---- accueil -----*/
+#banniere_accueil {
+    position: relative;
+    height: 100vh;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0));
+}
+
+#banniere_accueil h1 {
+    position: absolute;
+    left: 40%;
+    top: 40%;
+    transform: translate(-50%);
+    color: #DC9A0E;
+    font-size: 5em;
+}
+
+#asbjorn{
+    position: absolute;
+    margin-top: 13%;
+    margin-left: -20%;
+
+    color:#fff;
+    
+}
+
+.action-button {
+    position: absolute;
+    padding: 20px 60px;
+    font-family: 'Pacifico', cursive;
+    font-size: 25px;
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #00000081;
+    border-bottom: 5px solid #DC9A0E;
+    text-shadow: 0px -2px #DC9A0E;
+    margin-left: 47%;
+    margin-top: 34%;
+    transition: all 0.1s;
+    -webkit-transition: all 0.1s;
+}
+
+.action-button:hover {
+    color: #DC9A0E;
+}
+.action-button:active {
+    transform: translate(0px,5px);
+    -webkit-transform: translate(0px,5px);
+    border-bottom: 1px solid;
+}
+
+
+#banniere_accueil figure {
+    margin: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+#banniere_accueil img {
+    max-width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* ---- accueil -----*/

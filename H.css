@@ -64,6 +64,9 @@ section.img_en_fond {
 
 div.gauche_imgfond {
     margin-left: 150px; /*histoire de décaler le tout*/
+    background-color: #D9D9D9;
+    border-radius: 10px;
+    opacity: 0.8;
 }
 
 figure.Images_fond {

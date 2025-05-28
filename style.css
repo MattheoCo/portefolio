@@ -559,3 +559,23 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.modal-content p {
+    text-align: justify;
+}
+
+.homer-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass);
+    padding: 2rem;
+    max-width: 1000px;
+}
+
+.homer-gif {
+    max-width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}

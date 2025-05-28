@@ -35,7 +35,8 @@
     <div class="hero-bg"></div>
     <div class="hero-content">
         <h1>Développeur Étudiant</h1>
-        <p>Passionné par l'innovation technologique et le développement d'applications modernes. Découvrez mes compétences acquises en BUT Informatique.</p>
+        <p>Passionné par l'innovation technologique et le développement d'applications modernes. Découvrez mes compétences acquises en BUT Informatique. </p>
+        <p>L'ampoule (Webgl 3d animé) permet de switcher en light/dark mode.</p>
         <a href="#competences" class="cta-button">
             <span>Explorer mes compétences</span>
             <span>→</span>
@@ -126,6 +127,13 @@
     </div>
 </div>
 
+<div class="modal" id="homerModal">
+    <div class="modal-content homer-modal-content">
+        <button class="modal-close" onclick="closeHomerModal()">&times;</button>
+        <img src="ressources/easteregg/homer.gif" alt="Homer Simpson" class="homer-gif">
+    </div>
+</div>
+
 <!-- Footer -->
 <footer class="footer" id="contact">
     <p>&copy; 2025 Portfolio Développeur - Innovation & Excellence Technique</p>
@@ -196,38 +204,163 @@
             title: "Compétence 1 - Réaliser un développement d'application",
             content: `
                     <h3>Niveau 1 : Développer des applications informatiques simples</h3>
-                    <p><strong>AC1 :</strong> Implémenter des conceptions simples</p>
-                    <p>Projet de gestion d'hôtel en Java avec création des classes essentielles (Client, Chambre, Réservation). Développement d'un projet Spring HATEOAS pour gérer une base de données d'employés avec architecture RESTful.</p>
 
-                    <p><strong>AC2 :</strong> Élaborer des conceptions simples</p>
-                    <p>Modélisation UML des entités et leurs relations. Enrichissement du modèle Employee avec attributs supplémentaires et documentation détaillée.</p>
+                    </br>
+                    </br>
+            <ul>
+                <li><strong>AC1 :</strong> Implémenter des conceptions simples</li>
+                <p>Dans le cadre du niveau 1 "Développer des applications informatiques simples", un projet de gestion d'hôtel en Java a été réalisé. Ce projet a permis d'implémenter des conceptions simples (AC1) à travers la création des classes essentielles (Client, Chambre, Réservation) et leurs interactions.</p>
+                <p>Un projet Spring HATEOAS a également été développé pour gérer une base de données d'employés. L'architecture a été étendue avec un <code>EmployeeModelAssembler</code> implémentant l'interface <code>RepresentationModelAssembler</code> de Spring HATEOAS, permettant de structurer les données en conformité avec les principes REST.</p>
+</br>
+                <li><strong>AC2 :</strong> Élaborer des conceptions simples</li>
+                <img src="ressources/comp1/hotelparadise.png" alt="sauvegarde hotel" class="responsive-image">
+                <p>Pour le projet de gestion d'hôtel, l'élaboration des conceptions simples (AC2) a été réalisée via la modélisation UML des entités et leurs relations.</p>
+                <p>Dans le projet Spring HATEOAS, le modèle <code>Employee</code> a été enrichi avec des attributs supplémentaires tels que <code>email</code>, <code>department</code>, et <code>hireDate</code>. Un diagramme UML a été intégré dans la documentation pour illustrer les relations entre les entités et les services.</p>
+</br>
+                <li><strong>AC3 :</strong> Faire des essais et évaluer leurs résultats en regard des spécifications</li>
+                <p>Pour le projet de gestion d'hôtel, des tests unitaires ont été développés afin de garantir la fiabilité, notamment pour les fonctionnalités critiques comme la réservation de chambres ou le calcul des tarifs.</p>
+                <p>Dans le projet Spring HATEOAS, des tests unitaires ont été ajoutés avec JUnit pour valider les fonctionnalités critiques du service, notamment la création, la mise à jour et la suppression des employés.</p>
+</br>
+                <li><strong>AC4 :</strong> Développer des interfaces utilisateurs</li>
+                <p>Pour le projet de gestion d'hôtel, une interface utilisateur intuitive a été créée pour permettre aux réceptionnistes de gérer les réservations, visualiser la disponibilité des chambres et enregistrer les clients.</p>
+                <p>Dans le projet Spring HATEOAS, une interface web a été développée avec Thymeleaf pour permettre aux utilisateurs de visualiser, ajouter, modifier et supprimer des employés. Cette interface respecte les principes d'accessibilité et d'ergonomie.</p>
+            </ul>
+</br>
 
-                    <h3>Niveau 2 : Partir des exigences et aller jusqu'à une application complète</h3>
-                    <p>Projet File System Analyser avec architecture client-serveur modulaire basée sur gRPC, sécurité TLS et interface JavaFX ergonomique.</p>
+            <h3>Niveau 2 : Partir des exigences et aller jusqu’à une application complète</h3>
+                    </br>
+                    </br>
+            <ul>
+                <li><strong>AC1 :</strong> Élaborer et implémenter les spécifications fonctionnelles et non fonctionnelles à partir des exigences </li>
+                <p>Le projet File System Analyser a été conçu et implémenté selon des spécifications fonctionnelles et non fonctionnelles précises, en s’appuyant sur une architecture client-serveur modulaire basée sur gRPC. Les exigences de performance, de sécurité (TLSv1.3/TLSv1.2, certificats personnalisés) et de scalabilité ont été rigoureusement respectées grâce à l’utilisation de Java 23, Spring Boot 3.2.3 et Redis pour la mise en cache.</p>
+                </br>
+                <li><strong>AC2 :</strong> Appliquer des principes d’accessibilité et d’ergonomie </li>
+                <img src="ressources/comp1/niveau2inter.png" alt="Interface utilisateur log avion s3" class="responsive-image">
+                <p>L’interface utilisateur, développée avec JavaFX 17.0.2, offre une expérience ergonomique, réactive et accessible, facilitant la navigation et l’analyse des systèmes de fichiers pour tous les utilisateurs.</p>
+                </br>
+                <li><strong>AC3 :</strong> Adopter de bonnes pratiques de conception et de programmation</li>
+                <p>Le projet applique de bonnes pratiques de conception et de programmation : utilisation de Lombok pour réduire le code boilerplate, organisation modulaire (client, serveur, interface partagée), gestion sécurisée des communications via gRPC et configuration Maven optimisée pour la génération des classes et la gestion des certificats.</p>
+                </br>
+                <li><strong>AC4 :</strong> Vérifier et valider la qualité de l’application par les tests</li>
+                <img src="ressources/comp1/test.png" alt="Tests JUnit" class="responsive-image">
+                <p>La qualité logicielle est assurée par une couverture de tests complète avec JUnit Jupiter et Spring Boot Test, garantissant la fiabilité et la conformité de l’application aux exigences initiales.</p>
+            </ul>
+</br>
+            <h3>Niveau 3 : Adapter des applications sur un ensemble de supports (embarqué, web, mobile, IoT)</h3>
+            </br>
+            </br>
+            <ul>
+                <li><strong>AC1 :</strong> Choisir et implémenter les architectures adaptées</li>
+                <p>Lors de ma SAE des semestres 3 & 4 j'ai réalisé un site web pour un salon du vin qui aura lieu sur Saint-Dié. J'ai aussi réaliser
+                une analyse de l'architecture du site web, en utilisant le modèle MVC pour séparer la logique métier, la présentation et les données.
+                J'ai sur mon temps personnel réalisé un site web, dans le but de faire un forum sur les plantes et les jardins. Ce site développé en php
+                me servira de base pour mes futurs projets web avec une base d'architecture MVC.</p>
+                </br>
+                <li><strong>AC2 :</strong> Faire évoluer une application existante</li>
+                <p>Lors de ma SAE 4 j'ai réalisé l'analyse technique d'un site web existant, en identifiant les points d'amélioration possibles.
+                Mon travail a porté sur un code PHP sans framework et lié a une application java et une base de données MySQL. J'ai donc commencé par
+                analyser le code existant, en identifiant les parties du code qui pouvaient être optimisées ou refactorisées.
+                Les liens entre l'application Java et la base de données MySQL ont été examinés pour identifier les opportunités d'amélioration.
+                Puis j'ai proposé des solutions pour améliorer la structure du code, la performance et la maintenabilité de l'application.
+                J'ai donc passé le code sous un framework PHP (Symfony) pour améliorer la structure du code et la maintenabilité de l'application tout en integrant
+                le Java au controller pour n'avoir plus qu'une application web .</p>
+                </br>
+                <li><strong>AC3 :</strong> Intégrer des solutions dans un environnement de production</li>
+                </br>
+            </ul>
                 `
         },
         2: {
             title: "Compétence 2 - Proposer des applications informatiques optimisées",
             content: `
-                    <h3>Niveau 1 : Appréhender et construire des algorithmes</h3>
-                    <p>Analyse et décomposition de problèmes algorithmiques, implémentation d'algorithmes de tri et de recherche avec évaluation des performances.</p>
+                                <h3>Niveau 1 : Appréhender et construire des algorithmes</h3>
+            <ul>
+                <li><strong>AC1 :</strong> J'ai analysé différents problèmes informatiques en les décomposant méthodiquement en éléments algorithmiques simples et en choisissant des structures de données adaptées.
+                    <p>Pour cela, j'ai pris l'habitude de décomposer chaque problème en étapes simples, ce qui m'a permis de mieux structurer mes solutions et de choisir les structures de données les plus pertinentes selon le contexte.
+                        J'ai appris à appréhender et construire des algorithmes. Cela m'a permis de comprendre comment fonctionne un algorithme et comment le construire.
+                        J'ai travaillé sur des algorithmes simples comme le tri à bulle, le tri par insertion, le tri par sélection, etc. J'ai appris à analyser
+                        un problème et à le résoudre avec méthode. J'ai appris à comparer des algorithmes pour des problèmes classiques et à expérimenter la notion
+                        de compilation et les représentations bas niveau des données.</p>
+                </li>
+                <li><strong>AC2 :</strong> J'ai comparé et implémenté plusieurs algorithmes classiques de tri (tri à bulles, tri par insertion, tri rapide) et de recherche, en évaluant leurs performances selon différents jeux de données.
+                    <p>Cette démarche m'a permis de comprendre les avantages et limites de chaque algorithme, et d'adapter leur utilisation en fonction des besoins en efficacité et en ressources.</p>
+                </li>
+                <li><strong>AC3 :</strong> J'ai formalisé et appliqué des outils mathématiques (logique booléenne, graphes, complexité algorithmique) pour résoudre des problématiques informatiques concrètes.
+                    <p>J'ai ainsi pu aborder des problèmes complexes en utilisant des outils mathématiques adaptés, ce qui a renforcé la rigueur de mes solutions. J'ai appris à construire des algorithmes à partir d'un problème donné.
+                        Par exemple, ici j'ai construit un algorithme de tri par insertion dans le but de trier une liste de nombres pour parcourir des fiches de paiements .</p>
+                </li>
+                <li><strong>AC4 :</strong> J'ai documenté et justifié les choix algorithmiques à travers des rapports et des schémas explicatifs.
+                    <p>La rédaction de rapports et la création de schémas m'ont aidé à clarifier mes choix et à les communiquer efficacement à d'autres membres de l'équipe.
+                    Lors de mon stage dans une entreprise de développement d'applications, j'ai eu l'occasion de travailler sur le développement d'une API IDE. Pour laquelle j'ai dû analyser différents
+                    technologies et langages de programmation pour choisir la meilleure solution. J'ai rédigé un rapport détaillant les choix effectués, en expliquant les raisons de mes décisions et en fournissant des schémas explicatifs.</p>
+                </li>
+            </ul>
 
-                    <h3>Niveau 2 : Sélectionner les algorithmes adéquats</h3>
-                    <p>Utilisation de structures de données complexes (arbres, graphes, tables de hachage) et techniques algorithmiques avancées (programmation dynamique).</p>
+            <h3>Niveau 2 : Sélectionner les algorithmes adéquats pour répondre à un problème donné</h3>
+            <ul>
+                <li><strong>AC1 :</strong> J'ai choisi et implémenté des structures de données complexes (arbres, graphes, tables de hachage) adaptées à des problématiques spécifiques.
+                    <p>J'ai su adapter la structure de données à la nature du problème, ce qui a permis d'optimiser les performances et la maintenabilité des applications développées.
+                        Par exemple, j'ai utilisé des arbres binaires pour représenter des hiérarchies de données et des graphes pour modéliser des réseaux de communication dans le cadre de projets de gestion de données.</p>
+                </li>
+                <li><strong>AC2 :</strong> J'ai utilisé des techniques algorithmiques avancées (programmation dynamique, méthodes arborescentes, algorithmes d’optimisation) pour résoudre des problèmes complexes, notamment en recherche opérationnelle et intelligence artificielle.
+                    <p>Ces techniques m'ont permis de traiter des cas complexes et d'apporter des solutions efficaces à des problématiques variées.
+                        Par exemple, j'ai utilisé la programmation dynamique pour résoudre des problèmes d'optimisation de ressources dans le cadre de projets de gestion de flux. Tout
+            en respectant les contraintes de temps et de mémoire, j'ai su adapter les algorithmes à la nature des données traitées.</p>
+                </li>
+                <li><strong>AC3 :</strong> J'ai intégré des pratiques de sécurisation des données et du code, en appliquant des méthodes de chiffrement et de validation des entrées.
+                    <p>La sécurité a été prise en compte dès la conception, en veillant à la robustesse des algorithmes et à la protection des données sensibles.
+                        Par exemple, j'ai mis en place des mécanismes de validation des entrées pour éviter les injections SQL. Lors de mon stage j'ai implémenté mTLS
+                        pour sécuriser les communications entre le client et le serveur, en utilisant des certificats personnalisés pour authentifier les deux parties.</p>
+                </li>
+            </ul>
 
-                    <h3>Niveau 3 : Analyser et optimiser des applications</h3>
-                    <p>Profilage d'applications avec outils spécialisés, optimisation des performances et intégration de bibliothèques spécialisées.</p>
-                `
+            <h3>Niveau 3 : Analyser et optimiser des applications</h3>
+            <ul>
+                <li><strong>AC1 :</strong> J'ai anticipé et mesuré les métriques clés (temps d’exécution, occupation mémoire) lors du développement et de l’optimisation d’applications.
+                    <p>Lors de mon stage l'API a été conçue avec Spring Boot et gRPC, j'ai utilisé des outils de mesure de performance pour évaluer l'impact des optimisations apportées.
+                        J'ai mis en place des tests de charge pour mesurer le temps de réponse et l'occupation mémoire de l'application, en utilisant des outils comme JMeter et VisualVM.</p>
+                </li>
+                <li><strong>AC2 :</strong> J'ai profilé et analysé le comportement de codes existants à l’aide d’outils spécialisés, puis justifié les optimisations apportées.
+                    <p>Le profilage m'a permis d'identifier les goulots d'étranglement et d'apporter des améliorations ciblées, tout en documentant les choix réalisés. Lors de la transmission de l'API, j'ai utilisé des outils de profilage comme VisualVM et YourKit pour analyser le comportement de l'application.
+                        J'ai identifié les goulots d'étranglement et optimisé le code en conséquence, en justifiant les choix réalisés dans un rapport détaillé. Certaines petit optimisations ont permis de réduire le temps d'exécution de manière significative.</p>
+                </li>
+                <li><strong>AC3 :</strong> J'ai sélectionné et utilisé des bibliothèques et méthodes adaptées à des domaines spécifiques (traitement d’images, intelligence artificielle, calcul parallèle), optimisant ainsi les performances des applications développées.
+                    <p>Le choix judicieux de bibliothèques spécialisées a permis de faire des envoies de fichier sur le serveur de l'api en multi-threading.
+                        J'ai intégré ces bibliothèques dans mes projets, en veillant à respecter les bonnes pratiques de développement et à optimiser les performances.</p>
+                </li>
+            </ul>  `
         },
         3: {
             title: "Compétence 3 - Administrer des systèmes informatiques communicants",
             content: `
                     <h3>Niveau 1 : Installer et configurer un poste de travail</h3>
-                    <p>Identification des composants matériels et logiciels, installation et configuration de systèmes d'exploitation et environnements de développement.</p>
+            <ul>
+                <li><strong>AC1 :</strong> Identifier les différents composants (matériels et logiciels) d’un système numérique
+                    <p>Au cours du BUT2, j'ai appris à reconnaître les composants matériels (processeur, RAM, disque dur, carte graphique) et logiciels (systèmes d’exploitation, pilotes, applications) d’un poste de travail. Par exemple, lors de la mise en place d’un poste de développement pour des projets de virtualisation,
+                    j'ai identifié les besoins matériels (CPU, RAM) et logiciels (système d’exploitation, IDE) nécessaires pour optimiser les performances et installer des environnements de développement adaptés.</p>
 
-                    <h3>Niveau 2 : Déployer des services dans une architecture réseau</h3>
-                    <p>Développement d'applications client-serveur, déploiement de services virtualisés et sécurisation avec mTLS et certificats personnalisés.</p>
-                `
+                </li>
+                <li><strong>AC2 :</strong> Utiliser les fonctionnalités de base d’un système multitâches / multiutilisateurs
+                    <p></p>
+                </li>
+                <li><strong>AC3 :</strong> Installer et configurer un système d’exploitation et des outils de développement
+                    <p>J’ai installé Ubuntu et Windows sur des machines virtuelles, puis configuré les environnements de développement (Eclipse, Visual Studio Code). J’ai aussi paramétré Git pour le versionnage des projets et installé Docker pour faciliter le déploiement d'API sur les VMS
+                    </p>
+                </li>
+            </ul>
+
+            <h3>Niveau 2 : Déployer des services dans une architecture réseau</h3>
+            <ul>
+                <li><strong>AC1 :</strong> Concevoir et développer des applications communicantes
+                    <p>J’ai développé des applications client-serveur en Java, une API Spring Boot et un client gRPC pour la communication entre le client et le serveur. J’ai utilisé des protocoles de communication (HTTP, gRPC) pour assurer l’échange de données entre les différentes parties de l’application.</p>
+                </li>
+                <li><strong>AC2 :</strong> Utiliser des serveurs et des services réseaux virtualisés
+                    <p>J’ai déployé des serveurs web (Apache, Nginx) et des bases de données (MySQL, MongoDB) dans des machines virtuelles et des conteneurs Docker. </p>
+                </li>
+                <li><strong>AC3 :</strong> Sécuriser les services et données d’un système
+                    <p>J’ai appliqué des mesures de sécurité : configuration de pare-feu, gestion des droits d’accès, chiffrement des échanges (HTTPS, SSH). Lors de
+                mon stage j'ai mis en place une protection mTLS pour sécuriser les communications entre le client et le serveur, en utilisant des certificats personnalisés pour authentifier les deux parties.</p>
+            </ul>  `
         },
         4: {
             title: "Compétence 4 - Gérer des données de l'information",

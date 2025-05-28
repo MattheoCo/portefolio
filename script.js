@@ -421,6 +421,70 @@ document.addEventListener('click', (e) => {
     }
 });
 
+let lightbulbClickCount = 0;
+let homerTimeout = null;
+
+function showHomerModal() {
+    const modal = document.getElementById('homerModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Ferme automatiquement après 4s
+        homerTimeout = setTimeout(closeHomerModal, 4000);
+    }
+}
+
+function closeHomerModal() {
+    const modal = document.getElementById('homerModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    if (homerTimeout) {
+        clearTimeout(homerTimeout);
+        homerTimeout = null;
+    }
+}
+
+// Ajoute ce code dans setupEventListeners()
+function setupEventListeners() {
+    const canvas = document.getElementById('lightbulbCanvas');
+    const themeButton = document.getElementById('themeButton');
+
+    if (canvas) {
+        canvas.addEventListener('click', () => {
+            lightbulbClickCount++;
+            if (lightbulbClickCount === 5) {
+                showHomerModal();
+                lightbulbClickCount = 0;
+            }
+            toggleTheme();
+        });
+        canvas.addEventListener('mouseenter', () => {
+            canvas.style.transform = 'scale(1.05)';
+        });
+        canvas.addEventListener('mouseleave', () => {
+            canvas.style.transform = 'scale(1)';
+        });
+    }
+
+    if (themeButton) {
+        themeButton.addEventListener('click', toggleTheme);
+    }
+
+    window.addEventListener('resize', handleResize);
+}
+
+// Ferme la modal Homer si on clique à l'extérieur
+document.getElementById('homerModal').addEventListener('click', (e) => {
+    if (e.target.id === 'homerModal') {
+        closeHomerModal();
+    }
+});
+
+// Exporte la fonction si besoin
+window.closeHomerModal = closeHomerModal;
+
 // Export des fonctions principales pour utilisation externe
 window.toggleTheme = toggleTheme;
 window.openModal = openModal;

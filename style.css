@@ -81,6 +81,22 @@ body {
     box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
 }
 
+responsive-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Pour s'assurer que les images dans la modal sont bien contraintes */
+.modal-content .responsive-image {
+    width: 100%;
+    max-height: 60vh; /* Limite la hauteur à 60% de la hauteur de la fenêtre */
+    object-fit: contain; /* Préserve le ratio tout en respectant les contraintes */
+}
+
 .theme-switch-button {
     width: 60px;
     height: 30px;
@@ -573,6 +589,7 @@ body {
     padding: 2rem;
     max-width: 1000px;
 }
+
 
 .homer-gif {
     max-width: 100%;

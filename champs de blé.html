@@ -119,9 +119,8 @@
     let fps = 0;
     let fpsElement;
 
-    // Ajoutez cette fonction au début de votre script
+
     function mergeBufferGeometries(geometries) {
-        // Version simplifiée pour THREE.js r128
         const mergedGeometry = new THREE.BufferGeometry();
 
         let vertexCount = 0;
@@ -132,12 +131,10 @@
             const positions = geometry.attributes.position.array;
             const normals = geometry.attributes.normal ? geometry.attributes.normal.array : null;
 
-            // Ajouter les positions
             for (let i = 0; i < positions.length; i++) {
                 positionArray.push(positions[i]);
             }
 
-            // Ajouter les normales si disponibles
             if (normals) {
                 for (let i = 0; i < normals.length; i++) {
                     normalArray.push(normals[i]);
@@ -158,10 +155,8 @@
         return mergedGeometry;
     }
 
-    // Ajoutez cette variable globale
     let instancedWheat;
 
-    // Modifiez votre fonction init() pour corriger l'ordre d'initialisation
     function init() {
         // Scène
         scene = new THREE.Scene();
@@ -182,7 +177,7 @@
         // Éclairage du coucher de soleil
         setupLighting();
 
-        // Ajout du moniteur de performance
+
         // Indicateur FPS simple
         fpsElement = document.createElement('div');
         fpsElement.style.position = 'absolute';
@@ -386,9 +381,8 @@
         updateDayNightCycle();
     }
 
-    // Ajoutez cette fonction pour mettre à jour le cycle jour/nuit
+
     function updateDayNightCycle() {
-        // Mise à jour de l'indicateur de temps
         const timeIndicator = document.getElementById('timeIndicator');
         if (dayTime < 0.25) {
             timeIndicator.textContent = "Nuit";
@@ -468,7 +462,7 @@
         // Tige principale
         const stemGeometry = new THREE.CylinderGeometry(0.02, 0.03, 2.5, 6, 4);
 
-        // Tête d'épi plus réaliste
+        // Tête d'épi
         const headGeometry = new THREE.CylinderGeometry(0.04, 0.06, 0.6, 6, 3);
         headGeometry.translate(0, 1.4, 0);
 
@@ -509,7 +503,7 @@
         // Fusion des géométries
         const wheatGeometry = mergeBufferGeometries([stemGeometry, headGeometry, leaf1, leaf2, beardGeometry]);
 
-        // Matériau avec effet doré plus réaliste
+        // Matériau avec effet doré
         const wheatMaterial = new THREE.MeshStandardMaterial({
             color: 0xd4af37,
             roughness: 0.7,
@@ -571,7 +565,7 @@
                 swaySpeed: 0.3 + Math.random() * 0.7,
                 swayAmount: 0.04 + Math.random() * 0.06,
                 originalPosition: position.clone(),
-                phase: Math.random() * Math.PI * 2  // Phase différente pour chaque épi
+                phase: Math.random() * Math.PI * 2
             });
         }
 
@@ -580,7 +574,6 @@
     }
 
     function createHills() {
-        // Collines en arrière-plan
         for (let h = 0; h < 3; h++) {
             const hillGeometry = new THREE.CylinderGeometry(
                 15 + h * 5,
@@ -782,7 +775,6 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Initialisation
     init();
 </script>
 

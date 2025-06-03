@@ -26,6 +26,7 @@
     <nav class="nav">
         <a href="#accueil">Accueil</a>
         <a href="#competences">Compétences</a>
+        <a href="champs%20de%20blé.html">Champs de blé WEB GL</a>
         <a href="#contact">Contact</a>
     </nav>
 </header>
@@ -358,6 +359,8 @@
             title: "Compétence 3 - Administrer des systèmes informatiques communicants",
             content: `
                     <h3>Niveau 1 : Installer et configurer un poste de travail</h3>
+                    </br>
+</br>
             <ul>
                 <li><strong>AC1 :</strong> Identifier les différents composants (matériels et logiciels) d’un système numérique
 
@@ -366,17 +369,22 @@
                     j'ai identifié les besoins matériels (CPU, RAM) et logiciels (système d’exploitation, IDE) nécessaires pour optimiser les performances et installer des environnements de développement adaptés. J'ai aussi réalisé des installations de systèmes d'exploitation sur des machines virtuelles, en configurant les paramètres réseau et les ressources allouées.</p>
 
                 </li>
+                </br>
                 <li><strong>AC2 :</strong> Utiliser les fonctionnalités de base d’un système multitâches / multiutilisateurs
                     <p></p>
                 </li>
+                </br>
                 <li><strong>AC3 :</strong> Installer et configurer un système d’exploitation et des outils de développement
                     <p>J’ai installé Ubuntu et Windows sur des machines virtuelles, puis configuré les environnements de développement (IntelliJ IDEA, Visual Studio Code, MYSQL). J’ai aussi paramétré Git pour le versionnage des projets et installé Docker pour faciliter le déploiement d'API sur les VMS.
                     J'ai organisé les paquets logiciels nécessaires pour le développement d'applications, en utilisant des gestionnaires de paquets comme APT pour Ubuntu et Chocolatey pour Windows.</p>
                     </p>
                 </li>
             </ul>
-
+</br>
+</br>
             <h3>Niveau 2 : Déployer des services dans une architecture réseau</h3>
+            </br>
+</br>
             <ul>
                 <li><strong>AC1 :</strong> Concevoir et développer des applications communicantes
 
@@ -386,9 +394,11 @@
                     Mon projet de stage a consisté à développer une API GRPC en Java avec Spring Boot, permettant de gérer des requêtes de fichiers et d'envoyer des réponses au client.
                     </p>
                 </li>
+                </br>
                 <li><strong>AC2 :</strong> Utiliser des serveurs et des services réseaux virtualisés
                     <p>J’ai déployé des serveurs web (Apache, Nginx) et des bases de données (MySQL, MongoDB) dans des machines virtuelles et des conteneurs Docker. </p>
                 </li>
+                </br>
                 <li><strong>AC3 :</strong> Sécuriser les services et données d’un système
                     <p>J’ai appliqué des mesures de sécurité : configuration de pare-feu, gestion des droits d’accès, chiffrement des échanges (HTTPS, SSH). Lors de
                 mon stage j'ai mis en place une protection mTLS pour sécuriser les communications entre le client et le serveur, en utilisant des certificats personnalisés pour authentifier les deux parties.</p>
@@ -397,11 +407,54 @@
         4: {
             title: "Compétence 4 - Gérer des données de l'information",
             content: `
-                    <h3>Niveau 1 : Concevoir et mettre en place une base de données</h3>
-                    <p>Conception de bases de données relationnelles à partir de cahiers des charges, optimisation des requêtes et visualisation des données.</p>
+                    <h3>Niveau 1 : Concevoir et mettre en place une base de données à partir d'un cahier des charges client</h3>
+</br>
+</br>
+<ul>
+    <li><strong>AC1 :</strong> Mettre à jour et interroger une base de données relationnelle (en requêtes directes ou à travers une application)
+        <img src="ressources/comp4/requete.png" alt="Requêtes SQL" class="responsive-image">
+        <p>Durant mes études, j'ai développé des compétences solides en manipulation de bases de données relationnelles. J'ai conçu et exécuté des requêtes SQL complexes pour extraire, filtrer et agréger des données selon différents critères.
+        Pour mon projet de gestion d'hôtel, j'ai créé des requêtes optimisées pour récupérer les disponibilités des chambres, gérer les réservations et produire des statistiques d'occupation. J'ai également utilisé des procédures stockées pour
+        automatiser certaines tâches récurrentes comme la mise à jour des prix saisonniers.</p>
+    </li>
+    </br>
+    <li><strong>AC2 :</strong> Visualiser des données
 
-                    <h3>Niveau 2 : Optimiser une base de données</h3>
-                    <p>Optimisation des modèles de données, assurance de la confidentialité et manipulation de données hétérogènes.</p>
+        <p>J'ai mis en œuvre plusieurs projets de visualisation de données pour transformer des informations brutes en représentations graphiques intelligibles. Pour un projet d'analyse de ventes, j'ai utilisé python et des bibliothèques comme Matplotlib et Seaborn
+         pour créer des graphiques interactifs montrant l'évolution des ventes par période et par région. Ces visualisations ont permis de mettre en évidence des tendances et des corrélations difficiles à percevoir dans les données brutes, facilitant ainsi la prise
+         de décision.</p>
+    </li>
+    </br>
+    <li><strong>AC3 :</strong> Concevoir une base de données relationnelle à partir d'un cahier des charges
+        <img src="ressources/comp4/mcd.png" alt="Modèle conceptuel de données" class="responsive-image">
+        <p>À partir de cahiers des charges clients, j'ai conçu plusieurs bases de données relationnelles en suivant une méthodologie rigoureuse. Pour un projet de gestion de stock,
+        j'ai d'abord élaboré un modèle conceptuel de données (MCD) identifiant les entités, leurs attributs et leurs relations. J'ai ensuite transformé ce modèle en modèle logique puis physique, en optimisant la structure pour garantir
+        l'intégrité des données et éviter la redondance. J'ai utilisé des outils comme MySQL Workbench pour modéliser visuellement la base avant son implémentation.</p>
+    </li>
+</ul>
+</br>
+</br>
+<h3>Niveau 2 : Optimiser une base de données, interagir avec une application et mettre en œuvre la sécurité</h3>
+</br>
+</br>
+<ul>
+    </br>
+    <li><strong>AC1 :</strong> Assurer la confidentialité des données (intégrité et sécurité)
+        <p>La sécurité des données a été une priorité dans mes projets. J'ai mis en place des systèmes de contrôle d'accès basés sur les rôles (RBAC) pour limiter l'accès aux informations sensibles.
+        Pour la protection des données personnelles, j'ai implémenté des techniques de chiffrement pour les informations confidentielles stockées en base. Ou par exemple dans un projet d'une page web assisté par un js, j'ai utilisé des techniques de hachage pour stocker les mots de passe de manière sécurisée.
+        tout en prenant soins d'obfuscer la fonction javascript pour éviter les injections de code malveillant et de créer une pseudo fonction "troll" pour induire en erreur.
+        </p>
+    </li>
+    </br>
+    <li><strong>AC2 :</strong> Organiser la restitution de données à travers la programmation et la visualisation
+        <p></p>
+    </li>
+    </br>
+    <li><strong>AC3 :</strong> Manipuler des données hétérogènes
+        <img src="ressources/comp4/heterogenes.png" alt="Données hétérogènes" class="responsive-image">
+        <p></p>
+    </li>
+</ul>
                 `
         },
         5: {

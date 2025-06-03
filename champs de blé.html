@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Champ de Blé au Coucher de Soleil</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        #dayNightSlider {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            -webkit-appearance: none;
+            outline: none;
+            z-index: 100;
+        }
+
+        #dayNightSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(to right, #ffcc66, #ffffff);
+            cursor: pointer;
+        }
+
+        #performanceStats {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        #timeIndicator {
+            position: absolute;
+            bottom: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div id="info">
+    <strong>🌾 Champ de Blé Doré</strong><br>
+    Utilisez la souris pour explorer<br>
+    Molette pour zoomer
+</div>
+
+<div id="controls">
+    Déplacez la souris pour admirer le coucher de soleil
+</div>
+<div id="performanceStats"></div>
+<input type="range" id="dayNightSlider" min="0" max="100" value="25">
+<div id="timeIndicator">Jour</div>
+<script>
+    // Variables globales
+    let scene, camera, renderer, controls;
+    let wheatField = [];
+    let particles = [];
+    let time = 0;
+    let mouseX = 0, mouseY = 0;
+    let stats;
+    let dayTime = 0.25; // 0=minuit, 0.5=midi, 1=minuit
+    let sunObject, moonObject;
+    let initialSunColor, initialSkyMaterial;
+
+    // Configuration
+    const FIELD_SIZE = 100;
+    const WHEAT_DENSITY = 40000;
+    const PARTICLE_COUNT = 500;
+    let lastTime = 0;
+    let fps = 0;
+    let fpsElement;
+
+    // Ajoutez cette fonction au début de votre script
+    function mergeBufferGeometries(geometries) {
+        // Version simplifiée pour THREE.js r128
+        const mergedGeometry = new THREE.BufferGeometry();
+
+        let vertexCount = 0;
+        let positionArray = [];
+        let normalArray = [];
+
+        geometries.forEach(geometry => {
+            const positions = geometry.attributes.position.array;
+            const normals = geometry.attributes.normal ? geometry.attributes.normal.array : null;
+
+            // Ajouter les positions
+            for (let i = 0; i < positions.length; i++) {
+                positionArray.push(positions[i]);
+            }
+
+            // Ajouter les normales si disponibles
+            if (normals) {
+                for (let i = 0; i < normals.length; i++) {
+                    normalArray.push(normals[i]);
+                }
+            }
+
+            vertexCount += positions.length / 3;
+        });
+
+        mergedGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positionArray, 3));
+
+        if (normalArray.length > 0) {
+            mergedGeometry.setAttribute('normal', new THREE.Float32BufferAttribute(normalArray, 3));
+        } else {
+            mergedGeometry.computeVertexNormals();
+        }
+
+        return mergedGeometry;
+    }
+
+    // Ajoutez cette variable globale
+    let instancedWheat;
+
+    // Modifiez votre fonction init() pour corriger l'ordre d'initialisation
+    function init() {
+        // Scène
+        scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0xff7f5f, 50, 200);
+
+        // Caméra
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3, 10);
+
+        // Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x1a1a1a);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        // Éclairage du coucher de soleil
+        setupLighting();
+
+        // Ajout du moniteur de performance
+        // Indicateur FPS simple
+        fpsElement = document.createElement('div');
+        fpsElement.style.position = 'absolute';
+        fpsElement.style.top = '10px';
+        fpsElement.style.left = '10px';
+        fpsElement.style.background = 'rgba(0,0,0,0.5)';
+        fpsElement.style.color = '#0ff';
+        fpsElement.style.padding = '5px 10px';
+        fpsElement.style.borderRadius = '5px';
+        fpsElement.style.fontFamily = 'monospace';
+        fpsElement.style.zIndex = '100';
+        document.body.appendChild(fpsElement);
+
+        // Gestion du slider jour/nuit
+        document.getElementById('dayNightSlider').addEventListener('input', function(e) {
+            dayTime = e.target.value / 100;
+            updateDayNightCycle();
+        });
+
+        // Création du ciel et du soleil
+        createSky();
+
+        // Création du champ de blé (stockage dans la variable globale)
+        instancedWheat = createWheatField();
+
+        // Création des collines en arrière-plan
+        createHills();
+
+        // Création des particules flottantes
+        createParticles();
+
+        // Sol
+        createGround();
+
+        // Contrôles souris
+        setupMouseControls();
+
+        // Gestionnaire de redimensionnement (uniquement après initialisation)
+        window.addEventListener('resize', onWindowResize);
+
+        // Démarrage de l'animation
+        animate();
+    }
+
+    // Ajoutez cette fonction séparée pour le redimensionnement
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function setupLighting() {
+        // Lumière ambiante douce
+        const ambientLight = new THREE.AmbientLight(0xff9f7f, 0.4);
+        scene.add(ambientLight);
+
+        // Lumière directionnelle (soleil)
+        const sunLight = new THREE.DirectionalLight(0xffaa55, 1.2);
+        sunLight.position.set(50, 30, -50);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 200;
+        sunLight.shadow.camera.left = -100;
+        sunLight.shadow.camera.right = 100;
+        sunLight.shadow.camera.top = 100;
+        sunLight.shadow.camera.bottom = -100;
+        scene.add(sunLight);
+
+        // Lumière dorée d'appoint
+        const fillLight = new THREE.DirectionalLight(0xffd700, 0.6);
+        fillLight.position.set(-30, 20, 30);
+        scene.add(fillLight);
+    }
+
+    function createSky() {
+        // Géométrie du ciel (sphère)
+        const skyGeometry = new THREE.SphereGeometry(500, 32, 16);
+
+        // Shader du coucher de soleil
+        const skyMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                dayTime: { value: dayTime },
+                sunPosition: { value: new THREE.Vector3(50, 30, -50) }
+            },
+            vertexShader: `
+            varying vec3 vWorldPosition;
+            void main() {
+                vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                vWorldPosition = worldPosition.xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+            fragmentShader: `
+            uniform float time;
+            uniform float dayTime;
+            uniform vec3 sunPosition;
+            varying vec3 vWorldPosition;
+
+            void main() {
+                vec3 direction = normalize(vWorldPosition);
+                float elevation = direction.y;
+
+                // Couleurs en fonction du moment de la journée
+                vec3 dayTopColor = vec3(0.1, 0.6, 1.0); // Bleu ciel
+                vec3 dayHorizonColor = vec3(0.7, 0.8, 1.0); // Horizon jour
+                vec3 sunsetTopColor = vec3(0.1, 0.2, 0.4); // Bleu nuit
+                vec3 sunsetHorizonColor = vec3(1.0, 0.5, 0.3); // Orange coucher de soleil
+                vec3 nightTopColor = vec3(0.0, 0.05, 0.1); // Bleu nuit foncé
+                vec3 nightHorizonColor = vec3(0.1, 0.1, 0.2); // Horizon nuit
+
+                // Mélange entre jour, coucher de soleil et nuit
+                vec3 topColor, horizonColor;
+
+                // Cycle complet (0 à 1)
+                if (dayTime < 0.25) { // Nuit vers aube (0-0.25)
+                    float t = dayTime / 0.25;
+                    topColor = mix(nightTopColor, dayTopColor, smoothstep(0.0, 1.0, t));
+                    horizonColor = mix(nightHorizonColor, dayHorizonColor, smoothstep(0.0, 1.0, t));
+                } else if (dayTime < 0.75) { // Jour (0.25-0.75)
+                    float t = (dayTime - 0.25) / 0.5;
+                    if (t < 0.5) { // Matin (0.25-0.5)
+                        topColor = dayTopColor;
+                        horizonColor = dayHorizonColor;
+                    } else { // Après-midi vers coucher (0.5-0.75)
+                        float s = (t - 0.5) / 0.5;
+                        topColor = mix(dayTopColor, sunsetTopColor, smoothstep(0.0, 1.0, s));
+                        horizonColor = mix(dayHorizonColor, sunsetHorizonColor, smoothstep(0.0, 1.0, s));
+                    }
+                } else { // Crépuscule vers nuit (0.75-1)
+                    float t = (dayTime - 0.75) / 0.25;
+                    topColor = mix(sunsetTopColor, nightTopColor, smoothstep(0.0, 1.0, t));
+                    horizonColor = mix(sunsetHorizonColor, nightHorizonColor, smoothstep(0.0, 1.0, t));
+                }
+
+                // Distance au soleil
+                vec3 sunDir = normalize(sunPosition);
+                float sunDistance = distance(direction, sunDir);
+
+                // Mélange des couleurs selon l'élévation
+                float t = max(0.0, elevation);
+                vec3 color = mix(horizonColor, topColor, t);
+
+                // Halo du soleil (plus intense le jour, moins la nuit)
+                float sunGlowIntensity = (dayTime > 0.25 && dayTime < 0.75) ? 0.8 : 0.4;
+                float sunGlow = 1.0 - smoothstep(0.0, 0.3, sunDistance);
+                vec3 sunColor = mix(vec3(1.0, 0.8, 0.4), vec3(1.0, 0.3, 0.1),
+                                 abs(dayTime - 0.5) * 2.0); // Plus rouge au lever/coucher
+
+                color = mix(color, sunColor, sunGlow * sunGlowIntensity);
+
+                // Étoiles la nuit
+                if (dayTime < 0.2 || dayTime > 0.8) {
+                    float starIntensity = (dayTime < 0.2) ? 1.0 - dayTime/0.2 : (dayTime - 0.8)/0.2;
+                    if (elevation > 0.2) {
+                        float stars = fract(sin(direction.x * 100.0 + direction.y * 100.0 + direction.z * 100.0) * 10000.0);
+                        stars = step(0.99, stars) * starIntensity * 0.8;
+                        color += vec3(stars);
+                    }
+                }
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `,
+            side: THREE.BackSide
+        });
+
+        initialSkyMaterial = skyMaterial;
+
+        const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+        scene.add(sky);
+
+        // Soleil
+        const sunGeometry = new THREE.SphereGeometry(3, 16, 16);
+        const sunMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffff88,
+            emissive: 0xffaa44,
+            emissiveIntensity: 0.8
+        });
+
+        initialSunColor = sunMaterial.color.clone();
+        sunObject = new THREE.Mesh(sunGeometry, sunMaterial);
+        sunObject.position.set(50, 30, -50);
+        scene.add(sunObject);
+
+        // Lune
+        const moonGeometry = new THREE.SphereGeometry(2.5, 16, 16);
+        const moonMaterial = new THREE.MeshBasicMaterial({
+            color: 0xccccdd,
+            emissive: 0x555566,
+            emissiveIntensity: 0.3
+        });
+
+        moonObject = new THREE.Mesh(moonGeometry, moonMaterial);
+        moonObject.position.set(-50, -30, 50); // Position opposée au soleil
+        scene.add(moonObject);
+
+        // Position initiale selon le slider
+        updateDayNightCycle();
+    }
+
+    // Ajoutez cette fonction pour mettre à jour le cycle jour/nuit
+    function updateDayNightCycle() {
+        // Mise à jour de l'indicateur de temps
+        const timeIndicator = document.getElementById('timeIndicator');
+        if (dayTime < 0.25) {
+            timeIndicator.textContent = "Nuit";
+        } else if (dayTime < 0.5) {
+            timeIndicator.textContent = "Matin";
+        } else if (dayTime < 0.75) {
+            timeIndicator.textContent = "Après-midi";
+        } else {
+            timeIndicator.textContent = "Soirée";
+        }
+
+        // Position du soleil et de la lune (rotation autour de l'origine)
+        const angle = (dayTime * Math.PI * 2) - Math.PI/2;
+        const radius = 80;
+
+        // Position du soleil (jour)
+        sunObject.position.x = Math.cos(angle) * radius;
+        sunObject.position.y = Math.sin(angle) * radius;
+        sunObject.visible = (dayTime > 0.1 && dayTime < 0.9);
+
+        // Position de la lune (nuit) - opposée au soleil
+        moonObject.position.x = Math.cos(angle + Math.PI) * radius;
+        moonObject.position.y = Math.sin(angle + Math.PI) * radius;
+        moonObject.visible = (dayTime < 0.25 || dayTime > 0.75);
+
+        // Mise à jour des lumières
+        scene.children.forEach(child => {
+            // Lumière directionnelle (soleil/lune)
+            if (child instanceof THREE.DirectionalLight) {
+                // Intensité selon l'heure
+                let intensity = 1.2;
+                if (dayTime < 0.25) { // Nuit
+                    intensity = 0.3;
+                    child.color.setHex(0x8888cc);
+                } else if (dayTime < 0.5 || dayTime > 0.75) { // Aube/crépuscule
+                    intensity = 0.8;
+                    child.color.setHex(0xffaa77);
+                } else { // Jour
+                    intensity = 1.2;
+                    child.color.setHex(0xffaa55);
+                }
+
+                child.intensity = intensity;
+
+                // Ajuster la position de la lumière principale
+                if (child.intensity > 0.5) {
+                    child.position.copy(sunObject.position);
+                } else {
+                    child.position.copy(moonObject.position);
+                }
+            }
+
+            // Lumière ambiante
+            if (child instanceof THREE.AmbientLight) {
+                // Lumière ambiante plus bleue la nuit, plus chaude le jour
+                if (dayTime < 0.25 || dayTime > 0.75) {
+                    child.color.setHex(0x334466);
+                    child.intensity = 0.2;
+                } else {
+                    child.color.setHex(0xff9f7f);
+                    child.intensity = 0.4;
+                }
+            }
+        });
+
+        // Mise à jour des paramètres du shader de ciel
+        scene.children.forEach(child => {
+            if (child.material && child.material.uniforms && child.material.uniforms.dayTime) {
+                child.material.uniforms.dayTime.value = dayTime;
+                child.material.uniforms.sunPosition.value = sunObject.position;
+            }
+        });
+    }
+
+
+    function createWheatField() {
+        // Tige principale
+        const stemGeometry = new THREE.CylinderGeometry(0.02, 0.03, 2.5, 6, 4);
+
+        // Tête d'épi plus réaliste
+        const headGeometry = new THREE.CylinderGeometry(0.04, 0.06, 0.6, 6, 3);
+        headGeometry.translate(0, 1.4, 0);
+
+        // Ajout de feuilles
+        const leafGeometry = new THREE.PlaneGeometry(0.2, 1.0);
+        const leaf1 = leafGeometry.clone();
+        leaf1.rotateY(Math.PI / 2);
+        leaf1.rotateX(Math.PI / 4);
+        leaf1.translate(0, 0.7, 0.1);
+
+        const leaf2 = leafGeometry.clone();
+        leaf2.rotateY(Math.PI / 2);
+        leaf2.rotateX(-Math.PI / 5);
+        leaf2.translate(0, 0.5, -0.1);
+
+        // Création détaillée des barbes d'épis
+        const beardGeometry = new THREE.BufferGeometry();
+        const beardPositions = [];
+        const beardIndices = [];
+
+        // Créer plusieurs barbes autour de la tête d'épi
+        for (let i = 0; i < 18; i++) {
+            const angle = (i / 18) * Math.PI * 2;
+            const x = Math.cos(angle) * 0.06;
+            const z = Math.sin(angle) * 0.06;
+            const y = 1.4 + (i % 9) * 0.06;
+
+            beardPositions.push(x, y, z);
+            beardPositions.push(x * 5, y + 0.2, z * 5);  // Longueur des barbes
+
+            const idx = i * 2;
+            beardIndices.push(idx, idx + 1);
+        }
+
+        beardGeometry.setAttribute('position', new THREE.Float32BufferAttribute(beardPositions, 3));
+        beardGeometry.setIndex(beardIndices);
+
+        // Fusion des géométries
+        const wheatGeometry = mergeBufferGeometries([stemGeometry, headGeometry, leaf1, leaf2, beardGeometry]);
+
+        // Matériau avec effet doré plus réaliste
+        const wheatMaterial = new THREE.MeshStandardMaterial({
+            color: 0xd4af37,
+            roughness: 0.7,
+            metalness: 0.3,
+            flatShading: false
+        });
+
+        // Utilisation d'InstancedMesh pour l'optimisation
+        const instancedWheat = new THREE.InstancedMesh(wheatGeometry, wheatMaterial, WHEAT_DENSITY);
+        instancedWheat.castShadow = true;
+        instancedWheat.receiveShadow = true;
+
+        // Configuration des instances
+        const matrix = new THREE.Matrix4();
+        const position = new THREE.Vector3();
+        const quaternion = new THREE.Quaternion();
+        const scale = new THREE.Vector3();
+
+        // Réinitialiser le tableau wheatField
+        wheatField = [];
+
+        // Placement optimisé des épis de blé
+        for (let i = 0; i < WHEAT_DENSITY; i++) {
+            // Distribution en grille avec variation aléatoire pour plus de naturel
+            const gridSize = Math.sqrt(WHEAT_DENSITY) * 0.8;
+            const gridX = ((i % gridSize) / gridSize - 0.5) * FIELD_SIZE;
+            const gridZ = (Math.floor(i / gridSize) / gridSize - 0.5) * FIELD_SIZE;
+
+            position.set(
+                gridX + (Math.random() - 0.5) * 2,
+                0,
+                gridZ + (Math.random() - 0.5) * 2
+            );
+
+            // Rotation aléatoire
+            quaternion.setFromAxisAngle(
+                new THREE.Vector3(0, 1, 0),
+                Math.random() * Math.PI * 2
+            );
+
+            // Légère inclinaison aléatoire
+            const tiltQuat = new THREE.Quaternion().setFromAxisAngle(
+                new THREE.Vector3((Math.random() - 0.5) * 0.2, 0, (Math.random() - 0.5) * 0.2),
+                (Math.random() - 0.5) * 0.15
+            );
+            quaternion.multiply(tiltQuat);
+
+            // Variation d'échelle pour plus de naturel
+            const wheatScale = 0.7 + Math.random() * 0.6;
+            scale.set(wheatScale, wheatScale, wheatScale);
+
+            // Application
+            matrix.compose(position, quaternion, scale);
+            instancedWheat.setMatrixAt(i, matrix);
+
+            // Stockage pour l'animation
+            wheatField.push({
+                index: i,
+                swaySpeed: 0.3 + Math.random() * 0.7,
+                swayAmount: 0.04 + Math.random() * 0.06,
+                originalPosition: position.clone(),
+                phase: Math.random() * Math.PI * 2  // Phase différente pour chaque épi
+            });
+        }
+
+        scene.add(instancedWheat);
+        return instancedWheat;
+    }
+
+    function createHills() {
+        // Collines en arrière-plan
+        for (let h = 0; h < 3; h++) {
+            const hillGeometry = new THREE.CylinderGeometry(
+                15 + h * 5,
+                20 + h * 8,
+                8 + h * 3,
+                8
+            );
+
+            const hillMaterial = new THREE.MeshLambertMaterial({
+                color: new THREE.Color().lerpColors(
+                    new THREE.Color(0x4a5d23),
+                    new THREE.Color(0x8b7355),
+                    h * 0.3
+                )
+            });
+
+            const hill = new THREE.Mesh(hillGeometry, hillMaterial);
+            hill.position.set(
+                (Math.random() - 0.5) * 150,
+                -2,
+                -60 - h * 20
+            );
+            hill.castShadow = true;
+            hill.receiveShadow = true;
+            scene.add(hill);
+        }
+
+        // Ligne d'arbres lointains
+        for (let t = 0; t < 20; t++) {
+            const treeGeometry = new THREE.ConeGeometry(2, 8, 6);
+            const treeMaterial = new THREE.MeshLambertMaterial({
+                color: 0x2d4a1e
+            });
+
+            const tree = new THREE.Mesh(treeGeometry, treeMaterial);
+            tree.position.set(
+                (t - 10) * 8 + (Math.random() - 0.5) * 5,
+                4,
+                -80 + (Math.random() - 0.5) * 10
+            );
+            tree.castShadow = true;
+            scene.add(tree);
+        }
+    }
+
+    function createParticles() {
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = [];
+        const particleVelocities = [];
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            // Position aléatoire
+            particlePositions.push(
+                (Math.random() - 0.5) * FIELD_SIZE,
+                Math.random() * 20,
+                (Math.random() - 0.5) * FIELD_SIZE
+            );
+
+            // Vitesse aléatoire
+            particleVelocities.push(
+                (Math.random() - 0.5) * 0.02,
+                Math.random() * 0.01,
+                (Math.random() - 0.5) * 0.02
+            );
+        }
+
+        particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0xffd700,
+            size: 0.1,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+        particleSystem.userData = { velocities: particleVelocities };
+        particles.push(particleSystem);
+        scene.add(particleSystem);
+    }
+
+    function createGround() {
+        const groundGeometry = new THREE.PlaneGeometry(FIELD_SIZE * 2, FIELD_SIZE * 2);
+        const groundMaterial = new THREE.MeshLambertMaterial({
+            color: 0x8b7355,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -0.5;
+        ground.receiveShadow = true;
+        scene.add(ground);
+    }
+
+    function setupMouseControls() {
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        document.addEventListener('wheel', (event) => {
+            camera.position.z += event.deltaY * 0.01;
+            camera.position.z = Math.max(5, Math.min(50, camera.position.z));
+        });
+    }
+
+    function animate() {
+        const now = performance.now();
+        const delta = now - lastTime;
+        lastTime = now;
+
+        // Calcul FPS une fois chaque 500ms
+        if (delta > 0) {
+            const currentFps = 1000 / delta;
+            fps = fps * 0.95 + currentFps * 0.05; // Lissage
+            if (now % 500 < 16) {
+                fpsElement.textContent = `${Math.round(fps)} FPS`;
+            }
+        }
+
+        requestAnimationFrame(animate);
+        time += 0.01;
+
+        // Animation optimisée du blé
+        if (instancedWheat) {
+            const matrix = new THREE.Matrix4();
+            const position = new THREE.Vector3();
+            const quaternion = new THREE.Quaternion();
+            const scale = new THREE.Vector3();
+
+            // Ne pas animer toutes les instances à chaque frame
+            const updateCount = Math.min(200, WHEAT_DENSITY);
+            for (let i = 0; i < updateCount; i++) {
+                const index = (i + Math.floor(time * 50)) % WHEAT_DENSITY;
+                const data = wheatField[index];
+
+                instancedWheat.getMatrixAt(index, matrix);
+                matrix.decompose(position, quaternion, scale);
+
+                // Calcul de l'ondulation
+                const wave = Math.sin(time * data.swaySpeed + index * 0.1) * data.swayAmount;
+
+                // Nouvelle rotation basée sur l'ondulation
+                quaternion.setFromAxisAngle(
+                    new THREE.Vector3(Math.sin(index), 0, Math.cos(index)),
+                    wave
+                );
+
+                matrix.compose(position, quaternion, scale);
+                instancedWheat.setMatrixAt(index, matrix);
+            }
+
+            instancedWheat.instanceMatrix.needsUpdate = true;
+        }
+
+        // Animation des particules
+        particles.forEach(particleSystem => {
+            const positions = particleSystem.geometry.attributes.position.array;
+            const velocities = particleSystem.userData.velocities;
+
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] += velocities[i] + Math.sin(time + i) * 0.001;
+                positions[i + 1] += velocities[i + 1] + Math.cos(time + i) * 0.001;
+                positions[i + 2] += velocities[i + 2];
+
+                // Réinitialiser les particules qui sortent du champ
+                if (positions[i + 1] > 25) {
+                    positions[i + 1] = 0;
+                    positions[i] = (Math.random() - 0.5) * FIELD_SIZE;
+                    positions[i + 2] = (Math.random() - 0.5) * FIELD_SIZE;
+                }
+            }
+
+            particleSystem.geometry.attributes.position.needsUpdate = true;
+        });
+
+        // Mouvement de caméra basé sur la souris
+        camera.position.x += (mouseX * 5 - camera.position.x) * 0.02;
+        camera.position.y += (mouseY * 3 + 3 - camera.position.y) * 0.02;
+        camera.lookAt(0, 2, 0);
+
+        // Mise à jour du shader du ciel
+        scene.children.forEach(child => {
+            if (child.material && child.material.uniforms && child.material.uniforms.time) {
+                child.material.uniforms.time.value = time;
+            }
+        });
+
+        renderer.render(scene, camera);
+    }
+
+    // Gestion du redimensionnement
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Initialisation
+    init();
+</script>
+
+</body>
+</html>

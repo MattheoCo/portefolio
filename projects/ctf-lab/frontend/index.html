@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CTF Lab — Proxy/Backend Levels</title>
+  <style>
+    body{font-family:Inter,Arial,Helvetica,sans-serif;background:#07070a;color:#e6eef8;padding:24px}
+    .card{background:rgba(255,255,255,0.03);padding:18px;border-radius:10px;margin-bottom:12px}
+    button{padding:10px 14px;border-radius:6px;border:0;background:#00ff41;color:#07110a;cursor:pointer}
+    input{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);width:100%}
+  </style>
+</head>
+<body>
+  <h1>Multi-level CTF Lab (Level 0)</h1>
+  <div class="card">
+    <p>Env: Level 0 (pass-through). Backend accepts any input.</p>
+    <label>Payload (raw):</label>
+    <textarea id="payload" rows="6" style="width:100%">{"user":"alice","role":"user","note":"hello"}</textarea>
+    <p>
+      <button id="send">Send to /api/store</button>
+      <button id="dump">Get /api/dump</button>
+    </p>
+    <pre id="out" style="background:#000;padding:12px;border-radius:8px;max-height:260px;overflow:auto"></pre>
+  </div>
+  <script>
+    const send = document.getElementById('send');
+    const dump = document.getElementById('dump');
+    const out = document.getElementById('out');
+    send.addEventListener('click', async ()=>{
+      const p = document.getElementById('payload').value;
+      const r = await fetch('/api/store', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: p });
+      const t = await r.text(); out.textContent = t;
+    });
+    dump.addEventListener('click', async ()=>{
+      const r = await fetch('/api/dump'); const t = await r.text(); out.textContent = t;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>{{ title }}</title>
+  
+  <!-- Import map pour Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/terminal.css" />
+  <style>
+    /* Canvas 3D en arrière-plan */
+    #earth-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      background: #000000;
+    }
+    /* Contenu au-dessus */
+    .wrap { 
+      position: relative; 
+      z-index: 1;
+    }
+    header h1{color:#b8860b;font-weight:700;margin:0 0 12px;font-family:'Playfair Display',serif;font-size:2.2em;text-shadow:0 2px 10px rgba(184,134,11,0.2)}
+    header p{color:#cccccc;margin:0 0 24px;font-size:1.05em;font-weight:300;letter-spacing:0.3px}
+    
+    /* Navigation menu */
+    .main-nav {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      justify-content: center;
+    }
+    .nav-btn {
+      padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(184, 134, 11, 0.3);
+      border-radius: 6px;
+      color: #b8860b;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.95em;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .nav-btn:hover {
+      background: rgba(184, 134, 11, 0.15);
+      border-color: #b8860b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="earth-canvas"></canvas>
+  <div class="wrap">
+    <header>
+      <h1>Cyber Portfolio</h1>
+      <p>Terminal interactif — tapez <code>help</code> pour commencer</p>
+    </header>
+    <nav class="main-nav">
+      <a href="/" class="nav-btn">Accueil</a>
+      <a href="/cv" class="nav-btn">CV</a>
+    </nav>
+    <div class="terminal">
+      <div class="screen" id="screen"></div>
+      <div class="input">
+        <span class="prompt">guest@cyberport:~$</span>
+        <input id="cmd" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+    <p class="hint">Commandes: <strong>help</strong>, <strong>cv</strong>, <strong>projects</strong>, <strong>reveal ctf</strong></p>
+  </div>
+
+  <script type="module">
+    import { initEarth } from '/assets/earth.js';
+
+    const canvas = document.getElementById('earth-canvas');
+    initEarth({
+      canvas,
+      radius: 3,
+      earthPosition: [0, 0, 0],
+      cameraPosition: [0, 0, 8],
+      cameraLookAt: [0, 0, 0],
+      particlesCount: 800,
+      cameraSway: true
+    });
+  </script>
+
+  <script src="/assets/terminal.js?v={{ "now"|date('U') }}"></script>
+</body>
+</html>

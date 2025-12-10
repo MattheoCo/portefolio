@@ -1,0 +1,11 @@
+vendor/
+var/
+.git/
+.gitignore
+node_modules/
+.env.local
+.env.*.local
+.idea/
+.vscode/
+Dockerfile
+**/.DS_Store

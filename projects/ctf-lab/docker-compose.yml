@@ -1,0 +1,16 @@
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: proxy/Dockerfile
+    ports:
+      - "4100:4100"
+    environment:
+      - LEVEL=0
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+  # frontend is served by proxy (static files)

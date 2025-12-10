@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🐧 Linux Terminal - CTF Challenge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body{
+      margin:0;
+      background:#0d1117;
+      color:#c9d1d9;
+      font-family:'Fira Code',monospace;
+      min-height:100vh;
+      padding:40px 20px;
+    }
+    .terminal-container{
+      width:min(1200px, 80vw);
+      height:min(70vh, 800px);
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      background:#0b0f14;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 20px 60px rgba(0,0,0,0.35);
+      border:1px solid rgba(184,134,11,0.2);
+    }
+    .terminal-header{
+      background:#0f141a;
+      padding:12px 20px;
+      border-bottom:1px solid rgba(184,134,11,0.2);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.35);
+    }
+    .terminal-buttons{
+      display:flex;
+      gap:8px;
+    }
+    .btn{
+      width:12px;
+      height:12px;
+      border-radius:50%;
+    }
+    .btn.close{background:#ff5f56;}
+    .btn.minimize{background:#ffbd2e;}
+    .btn.maximize{background:#27ca3f;}
+    .terminal-title{ color:#b8860b; font-size:14px; margin-left:12px; font-weight:600; }
+    .terminal-screen{
+      flex:1;
+      padding:16px 20px;
+      overflow-y:auto;
+      background:#0d1117;
+      position:relative;
+    }
+    /* Canvas trail de triangles derrière le contenu */
+    .terminal-screen .terminal-trail-canvas{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:0;
+    }
+    /* Assure que le reste du contenu passe au-dessus */
+    .terminal-screen > *:not(.terminal-trail-canvas){
+      position:relative;
+      z-index:1;
+    }
+    .terminal-line{ margin-bottom:6px; line-height:1.5; }
+    .prompt{ color:#00ff41; font-weight:600; }
+    .command{ color:#c9d1d9; }
+    .output{ color:#8b949e; margin-left:0; white-space:pre-wrap; }
+    .output.success{color:#33d17a;}
+    .output.error{color:#e34c4c;}
+    .output.warning{color:#f0b429;}
+    .input-line{ display:flex; align-items:center; gap:6px; }
+    #cmd-input{
+      flex:1; background:transparent; border:none; outline:none; color:#c9d1d9;
+      font-family:'Fira Code',monospace; font-size:14px; font-weight:500;
+    }
+    .cursor{ background:#00ff41; width:8px; height:16px; animation:blink 1s infinite; }
+    @keyframes blink{
+      0%,50%{opacity:1;}
+      51%,100%{opacity:0;}
+    }
+    .ascii-art{ color:#b8860b; font-size:10px; line-height:1.1; margin:16px 0; text-shadow:0 1px 3px rgba(184,134,11,0.2); }
+    .flag-display{ background:linear-gradient(145deg,#10381f,#0e2e1b); border:1px solid #238636; border-radius:8px; padding:16px; margin:16px 0; text-align:center; display:none; box-shadow:0 4px 15px rgba(35,134,54,0.3); }
+    .flag-display.show{
+      display:block;
+      animation:flagReveal 1s ease;
+    }
+    @keyframes flagReveal{
+      from{opacity:0;transform:scale(0.9);}
+      to{opacity:1;transform:scale(1);}
+    }
+    .flag-text{ color:#3fb950; font-weight:bold; font-size:16px; }
+    .back-link{ position:absolute; top:20px; left:20px; color:#b8860b; text-decoration:none; font-weight:500; font-size:14px; transition:opacity 0.3s ease; z-index:10; opacity:0.9; }
+    .back-link:hover{ opacity:1; }
+
+    /* Ultra-wide screens */
+    @media (min-width: 1600px){
+      .terminal-container{ width: 70vw; height: 75vh; }
+      #cmd-input{ font-size: 16px; }
+      .terminal-line{ font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">← Retour au terminal</a>
+  
+  <div class="terminal-container">
+    <div class="terminal-header">
+      <div class="terminal-buttons">
+        <div class="btn close"></div>
+        <div class="btn minimize"></div>
+        <div class="btn maximize"></div>
+      </div>
+      <div class="terminal-title">admin@securetech:~</div>
+    </div>
+    
+    <div class="terminal-screen" id="screen">
+      <canvas class="terminal-trail-canvas" id="trail"></canvas>
+      <div class="ascii-art">
++=======================================+
+|           SecureTech System           |
+|              Terminal v2.1            |
++=======================================+
+      </div>
+      
+      <div class="terminal-line">
+        <span class="output success">🔐 Connexion réussie ! Bienvenue dans le système SecureTech</span>
+      </div>
+      <div class="terminal-line">
+        <span class="output">📅 Last login: Fri Sep 13 14:30:21 2024 from 192.168.1.100</span>
+      </div>
+      <div class="terminal-line">
+        <span class="output warning">⚠️  ATTENTION: Système sous surveillance. Toute activité est loggée.</span>
+      </div>
+      <div class="terminal-line"></div>
+      
+      <div id="command-history"></div>
+      
+      <div class="input-line">
+        <span class="prompt">admin@securetech:~$</span>
+        <input type="text" id="cmd-input" autocomplete="off" autofocus>
+        <span class="cursor"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="final-flag" class="flag-display">
+    <div class="flag-text">🏆 MISSION ACCOMPLIE ! 🏆</div>
+    <div style="margin:8px 0;color:#c9d1d9;">Vous avez réussi le challenge CTF complet !</div>
+    <div class="flag-text">CTF{l1nux_t3rm1n4l_m4st3r_2024}</div>
+  </div>
+
+  <script>
+    const screen = document.getElementById('screen');
+    const cmdInput = document.getElementById('cmd-input');
+    const commandHistory = document.getElementById('command-history');
+    let commandCount = 0;
+    const inputHistory = [];
+    let historyIndex = -1;
+
+    // === Effet triangles qui suivent la souris ===
+    (function initTriangleTrail(){
+      const canvas = document.getElementById('trail');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+      const state = {
+        triangles: [],
+        maxTriangles: 120,
+        hueBase: 40, // doré pour matcher la charte
+        lastSpawn: 0,
+        spawnInterval: 14, // ms
+        mouse: { x: 0, y: 0, inside: false }
+      };
+
+      function resize(){
+        const rect = screen.getBoundingClientRect();
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Position relative du pointeur dans l'écran
+      function localPos(e){
+        const r = screen.getBoundingClientRect();
+        return { x: e.clientX - r.left, y: e.clientY - r.top };
+      }
+
+      screen.addEventListener('mouseenter', (e)=>{
+        state.mouse.inside = true;
+        const p = localPos(e);
+        state.mouse.x = p.x; state.mouse.y = p.y;
+      });
+      screen.addEventListener('mouseleave', ()=>{
+        state.mouse.inside = false;
+      });
+      screen.addEventListener('mousemove', (e)=>{
+        const p = localPos(e);
+        state.mouse.x = p.x; state.mouse.y = p.y;
+      });
+
+      function spawnTriangle(x, y){
+        const angle = Math.random()*Math.PI*2;
+        const speed = 30 + Math.random()*40; // px/s
+        const life = 900 + Math.random()*700; // ms
+        const size = 6 + Math.random()*10; // px
+        const rotSpeed = (Math.random()*2 - 1) * 2; // rad/s
+        const hue = state.hueBase + (Math.random()*15 - 7);
+        state.triangles.push({
+          x, y,
+          vx: Math.cos(angle)*speed,
+          vy: Math.sin(angle)*speed,
+          rot: Math.random()*Math.PI,
+          rotSpeed,
+          size,
+          life,
+          age: 0,
+          color: `hsla(${hue} 55% 42% / 0.9)`
+        });
+        if (state.triangles.length > state.maxTriangles){
+          state.triangles.splice(0, state.triangles.length - state.maxTriangles);
+        }
+      }
+
+      let last = performance.now();
+      function tick(now){
+        const dt = now - last; // ms
+        last = now;
+
+        // Spawn
+        if (state.mouse.inside && now - state.lastSpawn > state.spawnInterval){
+          state.lastSpawn = now;
+          // plusieurs triangles pour un effet de traînée
+          for(let i=0;i<2;i++){
+            spawnTriangle(state.mouse.x + (Math.random()*6-3), state.mouse.y + (Math.random()*6-3));
+          }
+        }
+
+        // Update
+        const t = state.triangles;
+        for (let i=t.length-1;i>=0;i--){
+          const tr = t[i];
+          tr.age += dt;
+          const secs = dt/1000;
+          tr.x += tr.vx*secs;
+          tr.y += tr.vy*secs;
+          tr.vx *= 0.985; // légère friction
+          tr.vy *= 0.985;
+          tr.rot += tr.rotSpeed*secs;
+          if (tr.age > tr.life) t.splice(i,1);
+        }
+
+        // Render
+        ctx.clearRect(0,0,canvas.width,dpr?canvas.height:canvas.height);
+        for (const tr of t){
+          const alpha = 1 - (tr.age / tr.life);
+          const scale = 0.8 + 0.4*alpha; // grand au début puis rapetisse
+          ctx.save();
+          ctx.translate(tr.x, tr.y);
+          ctx.rotate(tr.rot);
+          ctx.scale(scale, scale);
+          // Triangle équilatéral centré
+          const s = tr.size;
+          ctx.beginPath();
+          ctx.moveTo(0, -s);
+          ctx.lineTo(s*0.866, s*0.5);
+          ctx.lineTo(-s*0.866, s*0.5);
+          ctx.closePath();
+          // Dégradé doré subtil
+          ctx.fillStyle = tr.color.replace('/ 0.9)','/ '+(0.2+0.6*alpha)+')');
+          ctx.fill();
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(184,134,11,'+(0.25*alpha)+')';
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    const fileSystem = {
+      '/home/admin': {
+        'secret.txt': 'FLAG_PART_1: CTF{l1nux_',
+        'notes.txt': 'TODO: Ne pas oublier de changer le mot de passe par défaut',
+        'backup.sh': '#!/bin/bash\n# Script de sauvegarde\necho "Sauvegarde en cours..."'
+      },
+      '/var/log': {
+        'auth.log': 'Jan 15 12:34:56 securebank sshd[1234]: Failed password for user guest',
+        'system.log': 'System boot completed successfully'
+      },
+      '/etc': {
+        'passwd': 'root:x:0:0:root:/root:/bin/bash\nadmin:x:1000:1000:Administrator:/home/admin:/bin/bash',
+        'shadow': 'Accès refusé - permissions insuffisantes'
+      }
+    };
+
+    let currentDir = '/home/admin';
+    let foundParts = [];
+
+    const commands = {
+      help() {
+        return `Commandes disponibles:
+  ls          - Lister les fichiers
+  cat <file>  - Afficher le contenu d'un fichier  
+  cd <dir>    - Changer de répertoire
+  pwd         - Afficher le répertoire courant
+  whoami      - Afficher l'utilisateur courant
+  find        - Rechercher des fichiers
+  history     - Afficher l'historique
+  clear       - Nettoyer l'écran
+  sudo        - Exécuter en tant que root
+  exit        - Quitter`;
+      },
+
+      ls(args) {
+        const path = args[0] ? (args[0].startsWith('/') ? args[0] : currentDir) : currentDir;
+        const dir = fileSystem[path];
+        if (!dir) return `ls: impossible d'accéder à '${path}': Aucun fichier ou dossier de ce type`;
+        return Object.keys(dir).join('  ');
+      },
+
+      cat(args) {
+        if (!args[0]) return 'cat: fichier manquant';
+        const file = args[0];
+        const dir = fileSystem[currentDir];
+        if (!dir || !dir[file]) return `cat: ${file}: Aucun fichier ou dossier de ce type`;
+        
+        if (file === 'secret.txt' && !foundParts.includes('part1')) {
+          foundParts.push('part1');
+          this.checkComplete();
+        }
+        
+        return dir[file];
+      },
+
+      pwd() {
+        return currentDir;
+      },
+
+      cd(args) {
+        const newDir = args[0];
+        if (!newDir) {
+          currentDir = '/home/admin';
+          return '';
+        }
+        
+        const targetDir = newDir.startsWith('/') ? newDir : newDir;
+        if (fileSystem[targetDir]) {
+          currentDir = targetDir;
+          return '';
+        }
+        return `cd: ${newDir}: Aucun fichier ou dossier de ce type`;
+      },
+
+      whoami() {
+        return 'admin';
+      },
+
+      find(args) {
+        if (args[0] === '-name' && args[1] === '*.txt') {
+          return `/home/admin/secret.txt
+/home/admin/notes.txt
+/var/log/auth.log
+/var/log/system.log`;
+        }
+        return 'find: utilisation: find -name <pattern>';
+      },
+
+      history() {
+        return `1  ls
+2  cat secret.txt  
+3  sudo -l
+4  find / -name "*.txt" 2>/dev/null
+5  history`;
+      },
+
+      sudo(args) {
+        if (args[0] === '-l') {
+          return `L'utilisateur admin peut exécuter les commandes suivantes sur securetech:
+    (ALL : ALL) ALL`;
+        }
+        if (args[0] === 'cat' && args[1] === '/etc/shadow') {
+          if (!foundParts.includes('part2')) {
+            foundParts.push('part2');
+            this.checkComplete();
+          }
+          return `root:$6$xyz$...:18885:0:99999:7:::
+admin:$6$abc$...:18885:0:99999:7:::
+FLAG_PART_2: t3rm1n4l_m4st3r_2024}`;
+        }
+        return args.length ? `sudo: ${args.join(' ')}: commande introuvable` : 'Usage: sudo <commande>';
+      },
+
+      clear() {
+        commandHistory.innerHTML = '';
+        return '';
+      },
+
+      exit() {
+        window.location.href = '/';
+        return 'Déconnexion...';
+      },
+
+      checkComplete() {
+        if (foundParts.length >= 2) {
+          setTimeout(() => {
+            document.getElementById('final-flag').classList.add('show');
+          }, 1000);
+        }
+      }
+    };
+
+    function executeCommand(cmd) {
+      const parts = cmd.trim().split(/\s+/);
+      const command = parts[0];
+      const args = parts.slice(1);
+
+      if (!command) return '';
+
+      const handler = commands[command];
+      if (handler) {
+        return handler.call(commands, args);
+      } else {
+        return `${command}: commande introuvable`;
+      }
+    }
+
+    function addToHistory(cmd, output) {
+      const historyLine = document.createElement('div');
+      historyLine.innerHTML = `
+        <div class="terminal-line">
+          <span class="prompt">admin@securetech:~$</span>
+          <span class="command">${cmd}</span>
+        </div>
+        ${output ? `<div class="terminal-line"><span class="output">${output}</span></div>` : ''}
+      `;
+      commandHistory.appendChild(historyLine);
+      screen.scrollTop = screen.scrollHeight;
+    }
+
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const cmd = cmdInput.value;
+        cmdInput.value = '';
+
+        if (cmd.trim()) {
+          inputHistory.push(cmd);
+          historyIndex = inputHistory.length;
+        }
+        const output = executeCommand(cmd);
+        addToHistory(cmd, output);
+        commandCount++;
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (inputHistory.length > 0) {
+          historyIndex = Math.max(0, historyIndex - 1);
+          cmdInput.value = inputHistory[historyIndex] ?? '';
+          // place caret at end
+          setTimeout(()=>cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length),0);
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (inputHistory.length > 0) {
+          historyIndex = Math.min(inputHistory.length, historyIndex + 1);
+          cmdInput.value = inputHistory[historyIndex] ?? '';
+          setTimeout(()=>cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length),0);
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+        // Ctrl+L to clear screen like a real terminal
+        e.preventDefault();
+        commandHistory.innerHTML = '';
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        // Ctrl+C to cancel current input: echo ^C
+        e.preventDefault();
+        addToHistory(cmdInput.value, '');
+        cmdInput.value = '';
+      }
+    });
+
+    // Auto-focus sur l'input
+    cmdInput.focus();
+    screen.addEventListener('click', () => cmdInput.focus());
+
+    // Messages d'encouragement
+    console.log('🐧 Bienvenue dans le terminal Linux !');
+    console.log('🎯 Objectif: Explorez le système et trouvez tous les fragments du flag');
+    console.log('💡 Indice: Cherchez des fichiers intéressants et utilisez sudo...');
+  </script>
+</body>
+</html>

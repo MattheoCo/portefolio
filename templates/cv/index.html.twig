@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CV - 170724</title>
+  <!-- Import map pour Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --card-bg: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #e6f1ff;
+      --muted: #9aa5b1;
+      --accent: #00ff41;
+    }
+
+    html, body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* Canvas 3D en arrière-plan */
+    #earth-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 0;
+      background: #000;
+    }
+
+    /* Contenu au-dessus du canvas */
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    nav a:hover {
+      background: rgba(0,255,65,0.1);
+      transform: translateY(-1px);
+    }
+
+    .header {
+      margin: 12px 0 24px;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin: 0 0 6px 0;
+      letter-spacing: 0.3px;
+    }
+    .role {
+      margin: 0 0 16px 0;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .contact-bar {
+      display: flex;
+      gap: 16px 24px;
+      flex-wrap: wrap;
+    }
+    .contact-item { display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .contact-item a { color: var(--text); text-decoration: none; }
+    .contact-item svg { width: 18px; height: 18px; fill: var(--accent); }
+
+    .skills-section { 
+      margin: 24px 0 8px;
+      padding: 20px;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .skills-section h2 { font-family: 'Playfair Display', serif; margin: 0 0 14px; font-size: 1.4rem; color: var(--accent); }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .skill-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    .skill-card:nth-child(1) { animation-delay: 0.1s; }
+    .skill-card:nth-child(2) { animation-delay: 0.2s; }
+    .skill-card:nth-child(3) { animation-delay: 0.3s; }
+    .skill-card:nth-child(4) { animation-delay: 0.4s; }
+    .skill-card:nth-child(5) { animation-delay: 0.5s; }
+    .skill-card:nth-child(6) { animation-delay: 0.6s; }
+    .skill-card:hover {
+      transform: translateY(-3px) scale(1.02);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0,255,65,0.15);
+    }
+    .skill-card svg { width: 18px; height: 18px; transition: transform 0.3s ease; }
+    .skill-card:hover svg { transform: rotate(5deg) scale(1.1); }
+    .skill-name { font-weight: 600; }
+
+    .timeline-section { 
+      margin-top: 28px;
+      padding: 20px;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .timeline-section h2 { font-family: 'Playfair Display', serif; margin: 0 0 18px; font-size: 1.4rem; color: var(--accent); }
+    .timeline {
+      position: relative;
+      padding: 20px 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      width: 2px; transform: translateX(-50%);
+      background: linear-gradient(to bottom, rgba(0,255,65,0) 0%, rgba(0,255,65,0.4) 10%, rgba(0,255,65,0.4) 90%, rgba(0,255,65,0) 100%);
+    }
+    .timeline-item {
+      position: relative;
+      width: 46%;
+      padding: 14px 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin: 22px 0;
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: fadeInSlide 0.6s ease forwards;
+    }
+    .timeline-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 6px 20px rgba(0,255,65,0.12);
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px rgba(0,255,65,0.6);
+    }
+    .timeline-item.left {
+      left: 0;
+      text-align: right;
+    }
+    .timeline-item.left::before {
+      right: -44px;
+    }
+    .timeline-item.right {
+      left: 50%;
+      text-align: left;
+    }
+    .timeline-item.right::before {
+      left: -44px;
+    }
+    .timeline-date {
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+    .timeline-date svg { width: 16px; height: 16px; fill: var(--accent); }
+    .timeline-title {
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .timeline-subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .timeline-desc {
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Two column layout for languages/interests */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .info-card {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .info-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 6px 20px rgba(0,255,65,0.12);
+    }
+    .info-card h3 {
+      color: var(--accent);
+      font-family: 'Fira Code', monospace;
+      font-size: 1.2rem;
+      margin: 0 0 16px;
+    }
+    .info-card ul { margin: 0; padding-left: 20px; }
+    .info-card li { margin-bottom: 8px; color: var(--text); }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 768px) {
+      .skills-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .timeline::before { left: 20px; }
+      .timeline { padding-left: 40px; }
+      .timeline-item { width: 100%; left: 0 !important; text-align: left !important; }
+      .timeline-item.left::before, .timeline-item.right::before { left: -34px; right: auto; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="earth-canvas"></canvas>
+  <div class="wrap">
+    <nav>
+      <a href="/">← Accueil</a>
+      <a href="/cv">CV</a>
+    </nav>
+
+    <header class="header">
+      <h1 class="name">Matthéo COGNET</h1>
+      <p class="role">Apprenti Ingénieur Informatique — Cybersécurité</p>
+      <div class="contact-bar">
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <a href="mailto:mattheocognet@gmail.com">mattheocognet@gmail.com</a>
+        </div>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.27 11.36 11.36 0 004.53.93 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.15a1 1 0 011 1 11.36 11.36 0 00.93 4.53 1 1 0 01-.27 1.11l-2.19 2.15z"/></svg>
+          <a href="tel:+33680131280">+33 6 80 13 12 80</a>
+        </div>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+          Saint-Dié-des-Vosges (88100)
+        </div>
+      </div>
+    </header>
+
+    <section class="skills-section">
+      <h2>💻 Compétences Techniques</h2>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <svg viewBox="0 0 24 24" fill="#b8860b"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+          <div class="skill-name">SQL & Bases de données</div>
+        </div>
+        <div class="skill-card">
+          <svg viewBox="0 0 24 24" fill="#b8860b"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-4.41-1.16-7-5.69-7-10.5V8.3l7-3.11v15.31z"/></svg>
+          <div class="skill-name">Sécurité Web</div>
+        </div>
+        <div class="skill-card">
+          <svg viewBox="0 0 24 24" fill="#b8860b"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+          <div class="skill-name">Symfony</div>
+        </div>
+        <div class="skill-card">
+          <svg viewBox="0 0 24 24" fill="#b8860b"><circle cx="12" cy="12" r="3"/><path d="M19.4 15c-.5 2.5-2.9 4-5.4 4s-4.9-1.5-5.4-4c-.5-2.5.9-5.4 3.4-6.4 2.5-1 5.4-.1 6.9 2.1.7 1.2 1 2.6.5 4.3z"/></svg>
+          <div class="skill-name">Python & Data</div>
+        </div>
+        <div class="skill-card">
+          <svg viewBox="0 0 24 24" fill="#b8860b"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+          <div class="skill-name">Docker & DevOps</div>
+        </div>
+        <div class="skill-card">
+          <svg viewBox="0 0 24 24" fill="#b8860b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <div class="skill-name">Audit & Tests</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="timeline-section">
+      <h2>🎓 Parcours & Formations</h2>
+      <div class="timeline">
+        <div class="timeline-item left">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Sep 2026 — Présent
+          </div>
+          <div class="timeline-title">Diplôme d'Ingénieur Informatique (Cybersécurité)</div>
+          <div class="timeline-subtitle">EiCnam — Saint-Dié-des-Vosges</div>
+          <div class="timeline-desc">Formation d'ingénieur spécialisée en cybersécurité. Architecture sécurisée, cryptographie, pentesting, gestion de projets IT.</div>
+        </div>
+
+        <div class="timeline-item right">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Sep 2023 — Présent
+          </div>
+          <div class="timeline-title">Bachelor Universitaire de Technologie (BUT)</div>
+          <div class="timeline-subtitle">IUT Saint-Dié-des-Vosges</div>
+          <div class="timeline-desc">Formation universitaire technique en informatique. Bases de données, développement web, réseaux, programmation.</div>
+        </div>
+
+        <div class="timeline-item left">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Sep 2020 — Août 2023
+          </div>
+          <div class="timeline-title">Baccalauréat</div>
+          <div class="timeline-subtitle">Lycée Paul Constans — Montluçon</div>
+          <div class="timeline-desc">Obtention du baccalauréat. Fondamentaux académiques et projet personnel (création et gestion du club d'échecs).</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="timeline-section">
+      <h2>💼 Expériences Professionnelles</h2>
+      <div class="timeline">
+        <div class="timeline-item left">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Oct 2025 — Présent
+          </div>
+          <div class="timeline-title">Vendeur en boulangerie</div>
+          <div class="timeline-subtitle">Feuillette — Sainte-Marguerite</div>
+          <div class="timeline-desc">Accueil client, encaissement, gestion du réassort. Développement du sens du service, rigueur et réactivité.</div>
+        </div>
+
+        <div class="timeline-item right">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Fév 2025 — Avr 2025
+          </div>
+          <div class="timeline-title">Stage Développeur d'application</div>
+          <div class="timeline-subtitle">Pyxis Society — Montluçon</div>
+          <div class="timeline-desc">Développement d'une API sécurisée d'analyse de dossiers en streaming. Fiabilité, autonomie, travail d'équipe.</div>
+        </div>
+
+        <div class="timeline-item left">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Juil 2024 — Août 2024
+          </div>
+          <div class="timeline-title">Ouvrier</div>
+          <div class="timeline-subtitle">Socopa — Villefranche d'Allier</div>
+          <div class="timeline-desc">Déballage et logistique. Communication et travail d'équipe en environnement industriel.</div>
+        </div>
+
+        <div class="timeline-item right">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Juil 2022 — Août 2022
+          </div>
+          <div class="timeline-title">Bénévole</div>
+          <div class="timeline-subtitle">Souvigny Grand-Site</div>
+          <div class="timeline-desc">Maintien du stand, vente et préparation. Expérience associative et service au public.</div>
+        </div>
+
+        <div class="timeline-item left">
+          <div class="timeline-date">
+            <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+            Sep 2020 — Juin 2021
+          </div>
+          <div class="timeline-title">Gérant — Club d'échecs</div>
+          <div class="timeline-subtitle">Lycée Paul Constans — Montluçon</div>
+          <div class="timeline-desc">Création et gestion d'un club d'échecs. Organisation d'événements, enseignement technique, animation.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="two-col">
+      <div class="info-card">
+        <h3>🌍 Langues</h3>
+        <ul>
+          <li><strong>Français</strong> — Natif</li>
+          <li><strong>Anglais</strong> — B1 (intermédiaire)</li>
+          <li><strong>Espagnol</strong> — A2 (élémentaire)</li>
+          <li><strong>Allemand</strong> — Notions</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>🎯 Centres d'intérêt</h3>
+        <ul>
+          <li>🏹 <strong>Tir à l'arc</strong> — pratique depuis 2 ans</li>
+          <li>♟️ <strong>Échecs</strong> — club & tournois</li>
+          <li>✈️ <strong>Voyages</strong> — Danemark, Allemagne, Belgique</li>
+          <li>🐜 <strong>Myrmécologie</strong> — élevage de fourmis depuis 2021</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+  <script type="module">
+    import { initEarth } from '/assets/earth.js';
+    const canvas = document.getElementById('earth-canvas');
+    initEarth({
+      canvas,
+      radius: 3,
+      earthPosition: [0, 0, 0],
+      cameraPosition: [0, 0, 8],
+      cameraLookAt: [0, 0, 0],
+      particlesCount: 800,
+      cameraSway: true
+    });
+  </script>
+</body>
+</html>
+

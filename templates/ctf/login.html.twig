@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔐 CTF Login Challenge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body{
+      margin:0;
+      background:linear-gradient(135deg,#fafafa 0%,#f0f0f0 50%,#ffffff 100%);
+      color:#333333;
+      font-family:'Inter',sans-serif;
+      min-height:100vh;
+      padding:40px 20px;
+    }
+    .login-container{
+      background:linear-gradient(145deg,#ffffff,#f8f8f8);
+      border:1px solid rgba(184,134,11,0.2);
+      border-radius:12px;
+      padding:32px;
+      max-width:380px;
+      width:100%;
+      margin:0 auto;
+      box-shadow:0 15px 40px rgba(0,0,0,0.08);
+      position:relative;
+    }
+    .form-group{
+      margin-bottom:20px;
+    }
+    label{
+      display:block;
+      color:#555555;
+      font-weight:500;
+      margin-bottom:6px;
+      font-size:0.95em;
+    }
+    input[type="text"], input[type="password"]{
+      width:100%;
+      padding:12px 16px;
+      border:1px solid rgba(184,134,11,0.3);
+      border-radius:8px;
+      background:linear-gradient(145deg,#fefefe,#f5f5f5);
+      color:#333333;
+      font-family:'Inter',sans-serif;
+      font-size:14px;
+      transition:all 0.3s ease;
+      box-sizing:border-box;
+    }
+    input[type="text"]:focus, input[type="password"]:focus{
+      outline:none;
+      border-color:#b8860b;
+      box-shadow:0 0 0 3px rgba(184,134,11,0.1);
+    }
+    .password-container{
+      position:relative;
+    }
+    .show-password{
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      background:none;
+      border:none;
+      color:#b8860b;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:500;
+      transition:color 0.3s ease;
+    }
+    .show-password:hover{
+      color:#8b6914;
+    }
+    .login-btn{
+      width:100%;
+      padding:14px;
+      background:linear-gradient(145deg,#b8860b,#8b6914);
+      color:#ffffff;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      margin-top:10px;
+      box-shadow:0 4px 15px rgba(184,134,11,0.3);
+    }
+    .login-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 20px rgba(184,134,11,0.4);
+    }
+    .troll-message{
+      background:linear-gradient(45deg,#fff3cd,#fef9e7);
+      border:1px solid #f1c40f;
+      border-radius:8px;
+      padding:12px;
+      margin-top:20px;
+      text-align:center;
+      display:none;
+      font-family:'Fira Code',monospace;
+      font-size:13px;
+    }
+    .troll-message.show{
+      display:block;
+      animation:slideIn 0.5s ease;
+    }
+    @keyframes slideIn{
+      from{opacity:0;transform:translateY(-10px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+    .flag{
+      background:linear-gradient(145deg,#d4edda,#c3e6cb);
+      border:1px solid #28a745;
+      border-radius:8px;
+      padding:16px;
+      margin-top:20px;
+      text-align:center;
+      display:none;
+      font-family:'Fira Code',monospace;
+      font-weight:600;
+    }
+    .flag.show{
+      display:block;
+      animation:flagAppear 0.8s ease;
+    }
+    @keyframes flagAppear{
+      from{opacity:0;transform:scale(0.9);}
+      to{opacity:1;transform:scale(1);}
+    }
+    .back-link{
+      position:absolute;
+      top:20px;
+      left:20px;
+      color:#b8860b;
+      text-decoration:none;
+      font-weight:500;
+      font-size:14px;
+      transition:color 0.3s ease;
+    }
+    .back-link:hover{
+      color:#8b6914;
+    }
+    .hint{
+      text-align:center;
+      margin-top:20px;
+      color:#888888;
+      font-size:0.85em;
+      font-style:italic;
+    }
+    /* Add consistent spacing between children of the login container */
+    .login-container > * + * {
+      margin-top:18px;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">← Retour</a>
+  
+  <div class="login-container">
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur :</label>
+        <input type="text" id="username" name="username" value="admin" readonly>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe :</label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe">
+          <button type="button" class="show-password" title="Afficher/Masquer" onclick="togglePassword(event)">👁️</button>
+        </div>
+      </div>
+      
+      <button type="submit" class="login-btn">Se connecter</button>
+    </form>
+    
+    <div id="trollMessage" class="troll-message">
+      <p>😏 <strong>Fonction de debug activée !</strong></p>
+      <p>Mot de passe en clair : <span id="clearPassword" style="color:#d63384;font-weight:bold;"></span></p>
+    </div>
+    
+    <div id="flagContainer" class="flag">
+      <p>🎉 <strong>Félicitations ! Vous avez trouvé le mot de passe :</strong></p>
+    </div>
+    
+    
+  </div>
+
+  <script>
+    // Easter egg: fonction troll cachée dans les dev tools
+    window.showPasswordInClear = function() {
+      const passwordField = document.getElementById('password');
+      const trollMessage = document.getElementById('trollMessage');
+      const clearPasswordSpan = document.getElementById('clearPassword');
+      
+      // Le "vrai" mot de passe (troll)
+      const realPassword = 'password123';
+      
+      clearPasswordSpan.textContent = realPassword;
+      trollMessage.classList.add('show');
+      
+      // Auto-remplir le champ de mot de passe
+      passwordField.value = realPassword;
+      
+      console.log('🎭 Fonction troll activée ! Le mot de passe a été révélé.');
+      console.log('Essayez maintenant de vous connecter...');
+    };
+    
+    function togglePassword(e) {
+      const passwordField = document.getElementById('password');
+      const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordField.setAttribute('type', type);
+      
+      // Petit troll supplémentaire
+      if (type === 'text') {
+        console.log('👀 Vous essayez de voir le mot de passe ?');
+        //console.log('🔍 Tapez showPasswordInClear() dans la console pour une surprise...');
+      }
+
+      // Raccourci discret: Alt+clic sur l'icône déclenche la fonction cachée
+      if (e && e.altKey && typeof window.showPasswordInClear === 'function') {
+        window.showPasswordInClear();
+      }
+    }
+    
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      // Vérification simple (CTF basique)
+      if (username === 'admin' && password === 'password123') {
+        // Redirection vers le terminal Linux
+        console.log('🎉 Connexion réussie ! Redirection vers le terminal...');
+        setTimeout(() => {
+          window.location.href = '/ctf/terminal';
+        }, 1000);
+      } else {
+        alert('❌ Identifiants incorrects !');
+        console.log('❌ Essayez encore... Peut-être y a-t-il des indices cachés ?');
+      }
+    });
+    
+    // Message de bienvenue dans la console
+    console.log('🔐 Bienvenue dans le challenge CTF Login !');
+    console.log('🎯 Objectif : Trouvez le mot de passe et connectez-vous');
+    console.log('💡 Indices : Explorez les fonctions JavaScript disponibles...');
+  </script>
+</body>
+</html>

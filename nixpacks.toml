@@ -1,0 +1,11 @@
+[variables]
+APP_ENV = 'prod'
+APP_DEBUG = '0'
+
+[phases.install]
+cmds = [
+  'composer install --no-dev --prefer-dist --no-progress --no-interaction'
+]
+
+[start]
+cmd = 'php -S 0.0.0.0:${PORT} public/router.php'

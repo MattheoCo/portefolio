@@ -39,9 +39,7 @@ COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
 
 # Nginx expects this directory
-RUN mkdir -p /run/nginx \
-    && (id -u www-data >/dev/null 2>&1 || adduser -D -H -s /sbin/nologin www-data) \
-    && chown -R www-data:www-data /var/www/html
+RUN mkdir -p /run/nginx
 
 ENV APP_ENV=prod \
     APP_DEBUG=0

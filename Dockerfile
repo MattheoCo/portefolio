@@ -11,9 +11,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 COPY . /var/www/html
 
-RUN composer install --no-dev --prefer-dist --no-progress --no-interaction \
+RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction \
     && mkdir -p var \
     && chown -R www-data:www-data /var/www/html
 

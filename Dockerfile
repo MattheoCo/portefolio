@@ -40,7 +40,7 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 
 # Nginx expects this directory
 RUN mkdir -p /run/nginx \
-    && (id -u www-data >/dev/null 2>&1 || adduser -D -H -u 82 -s /sbin/nologin www-data) \
+    && (id -u www-data >/dev/null 2>&1 || adduser -D -H -s /sbin/nologin www-data) \
     && chown -R www-data:www-data /var/www/html
 
 ENV APP_ENV=prod \

@@ -48,13 +48,11 @@
   `  help           Affiche cette aide\n`+
   `  about          À propos de moi\n`+
   `  skills         Compétences cyber\n`+
-  `  projects       Labs\n`+
-  `  ctf            Ouvre la page du CTF lab\n`+
-  `  cv             Ouvre mon CV\n`+
+  `  portfolio      Ouvre la page projets\n`+
   `  portfolio      Ouvre la page projets\n`+
   `  contact        Me contacter\n`+
   `  clear          Nettoie l'écran\n`+
-  `\nAstuce: essayez "projects -a" ou "reveal ctf".`;
+  `\n`;
 
   const router = {
     help(){ print(help, 'ok'); },
@@ -74,58 +72,18 @@
       print("<strong>Certifications & formation :</strong> Préparation OSCP / eLearnSecurity (ajouter ici si certifié)", 'ok');
       print("\nPour plus de détails, tapez 'cv' pour voir mon parcours complet ou 'projects -a' pour le lab CTF.", 'ok');
     },
-    projects(args){
-      // Affiche la liste des projets et ajoute le lab pentest
-      console.log('projects args:', args);
-      if (hasFlag(args, ['-a','--all','--hidden'])){
-        const div = document.createElement('div');
-        div.className = 'output ok';
-        div.innerHTML = "🔓 Mini CTF Web: <a href='/ctf/login' style='color:#77a8ff;text-decoration:underline;'>/ctf/login</a>";
-        screen.appendChild(div);
-        screen.scrollTop = screen.scrollHeight;
-        return;
-      }
-
-      print('Projets disponibles :', 'ok');
-
-      const projectsList = [
-        { name: 'Pentest Lab (Juice Shop)', url: '/projects/pentest-juice-shop', desc: 'Lab pentest Dockerisé (XSS, SQLi, PoC)' }
-      ];
-
-      for (const p of projectsList){
-        const div = document.createElement('div');
-        div.className = 'output';
-        div.innerHTML = `• <a href="${p.url}" style="color:#77a8ff;text-decoration:underline;">${p.name}</a> — ${p.desc}`;
-        screen.appendChild(div);
-      }
-      screen.scrollTop = screen.scrollHeight;
-    },
     ctf(){
-      // Ouvre d'abord le lab local (proxy frontend). Si indisponible, pointe vers la page portfolio.
-      const localUrl = 'http://localhost:4100';
-      const fallback = '/projects/ctf-lab';
-      // Try opening local lab in a new tab (if popup blockers allow)
+      const configured = (typeof window.CTF_URL === 'string' && window.CTF_URL.length) ? window.CTF_URL : null;
+      const target = configured || '/projects/ctf-lab';
       try{
-        // prefer opening in new tab so portfolio stays accessible
-        window.open(localUrl, '_blank');
-        print(`Ouverture du lab local: ${localUrl} (nouvel onglet)`, 'ok');
-        print(`Si le lab local n'est pas démarré, visitez ${fallback} ou lancez le lab avec docker compose.`, 'ok');
+        window.open(target, '_blank');
+        print(`Ouverture du CTF: ${target} (nouvel onglet)`, 'ok');
+        if(!configured){
+          print("Astuce: définissez la variable d'environnement CTF_PROXY_URL sur Railway pour pointer vers votre service proxy CTF.", 'warn');
+        }
       } catch (e){
-        // fallback to portfolio page
-        try{ window.location.href = fallback; print('Ouverture de la page portfolio du lab...', 'ok'); }
-        catch (e2){ print('Impossible d\'ouvrir le lab.', 'warn'); }
-      }
-    },
-    reveal(args){
-      console.log('reveal args:', args);
-      if (args && args[0] === 'ctf'){
-        const div = document.createElement('div');
-        div.className = 'output ok';
-        div.innerHTML = "🔓 Mini CTF Web: <a href='/ctf/login' style='color:#77a8ff;text-decoration:underline;'>/ctf/login</a>";
-        screen.appendChild(div);
-        screen.scrollTop = screen.scrollHeight;
-      } else {
-        print("Rien à révéler ici.", 'warn');
+        try{ window.location.href = target; }
+        catch (e2){ print('Impossible d\'ouvrir le CTF.', 'warn'); }
       }
     },
     contact(){
@@ -137,10 +95,7 @@
       window.location.href = '/projects';
       print("Redirection vers la page projets...", 'ok');
     },
-    cv(){
-      window.location.href = '/cv';
-      print("Ouverture du CV...", 'ok');
-    }
+    
   };
 
   function handleCmd(cmd){

@@ -1,5 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        ctf_url: '%env(CTF_PROXY_URL)%'
 
 when@test:
     twig:

@@ -24,7 +24,8 @@ RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-inte
 
 # Install Nginx + Supervisor
 RUN apk add --no-cache nginx supervisor bash tzdata \
-    && mkdir -p /run/nginx
+    && mkdir -p /run/nginx /var/log/nginx /var/lib/nginx \
+    && touch /var/log/nginx/access.log /var/log/nginx/error.log
 
 # Nginx config
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf

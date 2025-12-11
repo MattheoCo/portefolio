@@ -34,6 +34,11 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 
 EXPOSE 80
 
+RUN apk add --no-cache wget \
+    && sed -ri 's/^listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf \
+    && mkdir -p var \
+    && chown -R www-data:www-data var
+
 HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -qO- http://127.0.0.1/ || exit 1
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -14,7 +14,8 @@ WORKDIR /var/www/html
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     APP_ENV=prod \
-    APP_DEBUG=0
+    APP_DEBUG=0 \
+    APP_SECRET=33f7506276c6fb53c71d262464501e31
 
 # Copy app and install deps (skip scripts during build)
 COPY . /var/www/html

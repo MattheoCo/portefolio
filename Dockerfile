@@ -29,6 +29,7 @@ RUN apk add --no-cache nginx supervisor bash tzdata \
 
 # Nginx config
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Supervisor config to run both services
 COPY docker/supervisord.conf /etc/supervisord.conf

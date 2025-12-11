@@ -70,24 +70,12 @@
       print("<strong>Data & scripting :</strong> Parsing logs, analyse de traces, python (pandas), automatisation d'audit", 'ok');
       print("<strong>Soft skills :</strong> Communication technique, reporting, travail en équipe, résolution d'incidents", 'ok');
       print("<strong>Certifications & formation :</strong> Préparation OSCP / eLearnSecurity (ajouter ici si certifié)", 'ok');
-      print("\nPour plus de détails, tapez 'cv' pour voir mon parcours complet ou 'projects -a' pour le lab CTF.", 'ok');
+      print("\nPour plus de détails, tapez 'cv' pour voir mon parcours complet.", 'ok');
     },
     ctf(){
-      const configured = (typeof window.CTF_URL === 'string' && window.CTF_URL.length) ? window.CTF_URL : null;
-      const target = configured || '/projects/ctf-lab';
-      try{
-        window.open(target, '_blank');
-        print(`Ouverture du CTF: ${target} (nouvel onglet)`, 'ok');
-        if(!configured){
-          print("Astuce: définissez la variable d'environnement CTF_PROXY_URL sur Railway pour pointer vers votre service proxy CTF.", 'warn');
-        }
-      } catch (e){
-        try{ window.location.href = target; }
-        catch (e2){ print('Impossible d\'ouvrir le CTF.', 'warn'); }
-      }
+      print("En construction...", 'ok');
     },
     contact(){
-      print("LinkedIn: <a href='https://www.linkedin.com/in/matth%C3%A9o-cognet-2525b1293/' style='color:#77a8ff;text-decoration:underline;'>https://www.linkedin.com/in/matth%C3%A9o-cognet-2525b1293/</a>", 'ok');
       print("GitHub: <a href='https://github.com/MattheoCo' style='color:#77a8ff;text-decoration:underline;'>https://github.com/MattheoCo</a>", 'ok');
       print("Email: <a href='mailto:mattheocognet@gmail.com' style='color:#77a8ff;text-decoration:underline;'>mattheocognet@gmail.com</a>", 'ok');
     },

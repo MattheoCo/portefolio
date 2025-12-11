@@ -46,7 +46,7 @@ Commandes disponibles: `help`, `about`, `skills`, `projects`, `contact`, `clear`
 Modifiez `public/assets/terminal.js` pour enrichir les réponses, ajouter des sous-commandes ou redirections vers des pages classiques.
 
 ## Idées de sections/évolutions
-- Projets & labs: write-ups CTF, blue team (SIEM, détection), pentest éthique, homelab
+- Projets & labs: blue team (SIEM, détection), pentest éthique, homelab
 - Timeline/expérience: incidents résolus, outils développés, certifications
 - Démos interactives: mini terminal connecté à des endpoints Symfony (whoami, nmap mock, hash crack demo…)
 - Blog (Markdown): articles sécurité, TTPs, détections Sigma
@@ -85,5 +85,4 @@ Notes:
 - Pas de base de données dans ce squelette. Si vous ajoutez une DB, reliez un plugin Postgres/MySQL sur Railway et définissez `DATABASE_URL`.
 - En local vous avez Nginx + PHP-FPM via Docker, mais en production Railway utilise le serveur PHP intégré pour simplifier.
 
-### Monorepo: `projects/ctf-lab`
-Si vous souhaitez déployer les services Node du sous-dossier `projects/ctf-lab` (backend/proxy), créez des services séparés dans Railway en indiquant le dossier racine correspondant à chacun (`projects/ctf-lab/backend` et `projects/ctf-lab/proxy`). Le `frontend` est statique et peut être servi tel quel depuis Symfony (`public/projects/ctf-lab`).
+ 
